@@ -46,7 +46,7 @@
 							<mainClass>com.thealmostengineer.rebootrouter.App</mainClass>
 						</manifest>
 					</archive>
-					<finalName>rebootddwrtrouter.jar</finalName>
+					<finalName>rebootddwrtrouter</finalName>
 				</configuration>
 			</plugin>
 		</plugins>
