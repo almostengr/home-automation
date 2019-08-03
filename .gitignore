@@ -1,4 +1,6 @@
 /target/
+!/target/*jar
+
 testing.properties
 .classpath
 .project
