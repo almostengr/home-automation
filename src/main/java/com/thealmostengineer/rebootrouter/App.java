@@ -6,6 +6,7 @@ import java.util.concurrent.TimeUnit;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
+import org.openqa.selenium.firefox.FirefoxOptions;
 
 /**
  * Reboots the DD-WRT router when there are no WiFi clients connected to it.
@@ -21,8 +22,11 @@ import org.openqa.selenium.firefox.FirefoxDriver;
 public class App 
 {
 	static WebDriver clickRebootButton (WebDriver dWebDriver, String routerUrl, String username, String password) throws InterruptedException {
+		// split the URL into parts
 		String protocol = routerUrl.substring(0, routerUrl.indexOf("://"));
 		String hostname = routerUrl.substring(routerUrl.indexOf("://")+3);
+		
+		// reassemble URL with credentials included
 		String authenticationCredentials = username + ":" + password;
 		String authenticatedUrl = protocol + "://" + authenticationCredentials + "@" + hostname;
 
@@ -58,7 +62,11 @@ public class App
     		
     		webDriverSetup.setDriverProperties(properties.getProperty("geckoDriverPath"));
     		
-    		webDriver = new FirefoxDriver();
+    		// run headless to not interfere with user or desktop
+    		FirefoxOptions firefoxOptions = new FirefoxOptions();
+    		firefoxOptions.setHeadless(true);
+    		
+    		webDriver = new FirefoxDriver(firefoxOptions);
     		webDriver = webDriverSetup.setTimeouts(webDriver, 30);
     		
     		for (int i = 0; i < 5; i++) {
