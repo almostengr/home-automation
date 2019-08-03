@@ -20,7 +20,6 @@ public class PropertiesFileHandler {
 	 * @return
 	 */
 	Properties readPropertyFile(String filePath) {
-//		UserInterface.logMessage("Loading properties file " + filePath);
 		Properties properties = new Properties();
 		File file = new File(filePath);
 		FileReader fileReader = null;

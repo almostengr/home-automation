@@ -7,8 +7,6 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
 
-//import com.thealmostengineer.drupal7.webdriver.PropertiesFileHandler;
-
 /**
  * Reboots the DD-WRT router when there are no WiFi clients connected to it.
  * 
