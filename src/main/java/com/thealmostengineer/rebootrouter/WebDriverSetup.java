@@ -4,6 +4,12 @@ import java.util.concurrent.TimeUnit;
 
 import org.openqa.selenium.WebDriver;
 
+/**
+ * Handles the common functions in order to run a Selenium Webdriver automation.
+ * 
+ * @author almostengr, Kenny Robinson, thealmostengineer.com
+ *
+ */
 public class WebDriverSetup {
 
 	/**

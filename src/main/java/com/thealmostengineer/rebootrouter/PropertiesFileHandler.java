@@ -6,6 +6,12 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.Properties;
 
+/**
+ * Handles the loading of a properties file. 
+ * 
+ * @author almostengr, Kenny Robinson, thealmostengineer.com
+ *
+ */
 public class PropertiesFileHandler {
 	/**
 	 * Read in the properties file and load it into a variable.
