@@ -8,7 +8,7 @@
   <packaging>jar</packaging>
 
   <name>rebootrouter</name>
-  <url>http://maven.apache.org</url>
+  <url>http://thealmostengineer.com</url>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -21,4 +21,34 @@
 	    <version>3.14.0</version>
 	</dependency>
   </dependencies>
+  <organization>
+  	<name>Kenny Robinson, The Almost Engineer</name>
+  	<url>http://thealmostengineer.com</url>
+  </organization>
+  <scm>
+  	<url>https://github.com/almostengr/rebootrouter</url>
+  	<developerConnection>Kenny Robinson</developerConnection>
+  </scm>
+  <issueManagement>
+  	<url>https://github.com/almostengr/rebootrouter/issues</url>
+  	<system>Github</system>
+  </issueManagement>
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<version>2.4</version>
+				<configuration>
+					<archive>
+						<index>true</index>
+						<manifest>
+							<mainClass>com.thealmostengineer.rebootrouter.App</mainClass>
+						</manifest>
+					</archive>
+					<finalName>rebootddwrtrouter.jar</finalName>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
 </project>
