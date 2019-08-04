@@ -2,6 +2,7 @@ package com.thealmostengineer.rebootrouter;
 
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Logger;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
@@ -21,6 +22,7 @@ import org.openqa.selenium.firefox.FirefoxOptions;
  */
 public class App 
 {
+	static Logger logger = Logger.getLogger(App.class.getName());
 	static final int REBOOTTIMEOUT = 60;
 	
 	static WebDriver clickRebootButton (WebDriver dWebDriver, String routerUrl, String username, String password) throws InterruptedException {
@@ -32,20 +34,20 @@ public class App
 		String authenticationCredentials = username + ":" + password;
 		String authenticatedUrl = protocol + "://" + authenticationCredentials + "@" + hostname;
 
-		System.out.println("Going to Management page");
+		logger.info("Going to management page");
 		dWebDriver.get(authenticatedUrl + "Management.asp");
 		
-		System.out.println("Clicking Reboot button");
+		logger.info("Clicking Reboot button");
 		dWebDriver.findElement(By.name("reboot_button")).click();
 		
 		String bodyText = dWebDriver.findElement(By.tagName("body")).getText();
 		
 		if (bodyText.contains("Unit is rebooting now. Please wait a moment...")) {
-			System.out.println("Reboot was successful");
+			logger.info("Reboot request was successful");
 			TimeUnit.SECONDS.sleep(REBOOTTIMEOUT);
 		}
 		else {
-			System.err.println("Error occurred when attempting to click reboot button");
+			logger.severe("Error occurred when attempting to click reboot button");
 		}
 		
 		return dWebDriver;
@@ -53,6 +55,7 @@ public class App
 	
     public static void main( String[] args )
     {
+    	logger.info("Starting process");
     	int exitCode = 1;
     	WebDriver webDriver = null;
     	
@@ -75,30 +78,33 @@ public class App
 	    		webDriver.get(properties.getProperty("routerUrl"));
 	    		
 	    		String wirelessTableText = webDriver.findElement(By.id("wireless_table")).getText();
-	    		System.out.println(wirelessTableText);
+	    		logger.info(wirelessTableText);
     		
 	    		if (wirelessTableText.contains("ath0") || wirelessTableText.contains("ath1")) {
 	    			// no further action is required
-	    			System.out.println("Wireless table is not empty. No further action is required.");
+	    			logger.info("Wireless table is not empty. No further action is required");
 	    			break;
 	    		}
 	    		else {
 	    			// perform reboot steps
-	    			System.out.println("Wireless table is empty");
+	    			logger.warning("Wireless table is empty");
 	        		clickRebootButton(webDriver, properties.getProperty("routerUrl"), properties.getProperty("username"), properties.getProperty("password"));
 	    		}
     		} // end for
     		
 			exitCode = 0;
 		} catch (Exception e) {
-			System.err.println("Unexpected error occurred");
+			logger.severe("Unexpected error occurred");
 			e.printStackTrace();
 		}
     	
     	if (webDriver != null) {
+    		logger.info("Closing browser");
     		webDriver.quit();
     	}
     	
+    	logger.info("Exit code: " + exitCode);
     	System.exit(exitCode);
     }
 }
+
