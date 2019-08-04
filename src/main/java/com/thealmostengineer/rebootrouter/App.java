@@ -21,6 +21,8 @@ import org.openqa.selenium.firefox.FirefoxOptions;
  */
 public class App 
 {
+	static final int REBOOTTIMEOUT = 60;
+	
 	static WebDriver clickRebootButton (WebDriver dWebDriver, String routerUrl, String username, String password) throws InterruptedException {
 		// split the URL into parts
 		String protocol = routerUrl.substring(0, routerUrl.indexOf("://"));
@@ -40,7 +42,7 @@ public class App
 		
 		if (bodyText.contains("Unit is rebooting now. Please wait a moment...")) {
 			System.out.println("Reboot was successful");
-			TimeUnit.SECONDS.sleep(30);
+			TimeUnit.SECONDS.sleep(REBOOTTIMEOUT);
 		}
 		else {
 			System.err.println("Error occurred when attempting to click reboot button");
@@ -67,7 +69,7 @@ public class App
     		firefoxOptions.setHeadless(true);
     		
     		webDriver = new FirefoxDriver(firefoxOptions);
-    		webDriver = webDriverSetup.setTimeouts(webDriver, 30);
+    		webDriver = webDriverSetup.setTimeouts(webDriver, REBOOTTIMEOUT);
     		
     		for (int i = 0; i < 5; i++) {
 	    		webDriver.get(properties.getProperty("routerUrl"));
