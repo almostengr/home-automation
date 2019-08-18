@@ -79,6 +79,8 @@ public class App
 	    		
 	    		String wirelessTableText = webDriver.findElement(By.id("wireless_table")).getText();
 	    		logger.info(wirelessTableText);
+	    		logger.info("Uptime: " + webDriver.findElement(By.id("uptime")).getText());
+	    		
     		
 	    		if (wirelessTableText.contains("ath0") || wirelessTableText.contains("ath1")) {
 	    			// no further action is required
@@ -91,6 +93,8 @@ public class App
 	        		clickRebootButton(webDriver, properties.getProperty("routerUrl"), properties.getProperty("username"), properties.getProperty("password"));
 	    		}
     		} // end for
+    		
+    		logger.info("Uptime: " + webDriver.findElement(By.id("uptime")).getText());
     		
 			exitCode = 0;
 		} catch (Exception e) {
