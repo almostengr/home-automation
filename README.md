@@ -30,6 +30,7 @@ could install Java on the router and have the automation run from the router.
 If you have questions about this project, feel free to create an issue with your question. 
 
 ## Author
-Kenny Robinson
-@almostengr
-thealmostengineer.com
+
+Kenny Robinson, @almostengr
+
+[http://thealmostengineer.com](themostengineer.com)
