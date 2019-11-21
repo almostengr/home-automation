@@ -80,16 +80,16 @@ public class App
 	    		String wirelessTableText = webDriver.findElement(By.id("wireless_table")).getText();
 	    		logger.info(wirelessTableText);
 	    		logger.info("Uptime: " + webDriver.findElement(By.id("uptime")).getText());
-	    		
     		
-	    		if (wirelessTableText.contains("ath0") || wirelessTableText.contains("ath1")) {
+	    		if (wirelessTableText.contains("ath0") || wirelessTableText.contains("ath1") || 
+	    				wirelessTableText.contains("sense") == true) {
 	    			// no further action is required
 	    			logger.info("Wireless table is not empty. No further action is required");
 	    			break;
 	    		}
 	    		else {
 	    			// perform reboot steps
-	    			logger.warning("Wireless table is empty");
+	    			logger.warning("Wireless table is empty or Sense not connected");
 	        		clickRebootButton(webDriver, properties.getProperty("routerUrl"), properties.getProperty("username"), properties.getProperty("password"));
 	    		}
     		} // end for
@@ -101,10 +101,11 @@ public class App
 			logger.severe("Unexpected error occurred");
 			e.printStackTrace();
 		}
-    	
-    	if (webDriver != null) {
-    		logger.info("Closing browser");
-    		webDriver.quit();
+    	finally {
+	    	if (webDriver != null) {
+	    		logger.info("Closing browser");
+	    		webDriver.quit();
+	    	}
     	}
     	
     	logger.info("Exit code: " + exitCode);
