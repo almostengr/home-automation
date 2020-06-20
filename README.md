@@ -20,17 +20,12 @@ to restart the process would be to reboot the router.
 
 ## The Technology 
 This solution uses Selenium Webdriver to connect to the DD-WRT router web interface. I built this using
-Java, but it could be done on Python or one of the other platforms that Webdriver works on. 
-Ialso set up a cron job that calls the jar to perform the automated task.  The cron job is set to run every 
-20 minutes.  I have it set up on my media server, as the media server is always online.  However, you 
-could install Java on the router and have the automation run from the router. 
-
-
-## Questions 
-If you have questions about this project, feel free to create an issue with your question. 
+.NET Core, but it could be done on Python, Java, or one of the other platforms that Webdriver works on. 
+I also set up a cron job that calls this process to perform the automated task.  The cron job is set to run every 
+20 minutes.  I have it set up on server that is always running.
 
 ## Author
 
 Kenny Robinson, @almostengr
 
-[http://thealmostengineer.com](themostengineer.com)
+[https://thealmostengineer.com](themostengineer.com)
