@@ -58,12 +58,15 @@ namespace Almostengr.RebootRouter
 
                 logMessage("No issues to report");
             }
-            catch (Exception ex) {
+            catch (Exception ex)
+            {
                 logMessage("Exception occurred");
                 logMessage(ex.Message);
 
-                if (ex is ApplicationException || ex is WebDriverException) {
-                    if (AreExceptionHostsOnline() == false){
+                if (ex is ApplicationException || ex is WebDriverException)
+                {
+                    if (AreExceptionHostsOnline() == false)
+                    {
                         RebootRouter();
                     }
                 }
@@ -134,24 +137,29 @@ namespace Almostengr.RebootRouter
             }
         }
 
-        static bool AreExceptionHostsOnline() {
+        static bool AreExceptionHostsOnline()
+        {
             logMessage("Checking for exception hosts are online");
 
             int currentHour = Int32.Parse(DateTime.Now.ToString("HH"));
-            if ( currentHour >= 0 && currentHour <= 7 ){
+            if (currentHour >= 0 && currentHour <= 7)
+            {
                 logMessage("Bypassing check due to night time hours");
                 return false;
             }
 
-            string[] exceptHosts = {"xx:xx:xx:xx:4E:B7", "aeoffice"};
+            string[] exceptHosts = { "xx:xx:xx:xx:4E:B7", "aeoffice" };
 
             _driver.Navigate().GoToUrl(router + "/Status_Lan.asp");
 
             var cellElements = _driver.FindElements(By.TagName("td"));
 
-            foreach(var host in exceptHosts){
-                foreach (var cell in cellElements){
-                    if (host == cell.Text){
+            foreach (var host in exceptHosts)
+            {
+                foreach (var cell in cellElements)
+                {
+                    if (host == cell.Text)
+                    {
                         logMessage("Host was found to be online");
                         return true;
                     }
