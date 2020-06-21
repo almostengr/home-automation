@@ -10,42 +10,114 @@ namespace Almostengr.RebootRouter
         static IWebDriver _driver = null;
         static string router, protocol = "http", username = "", password = "", hostname = "router";
 
-        static void logMessage(string message)
+        static void DebugMessage(string message)
+        {
+#if DEBUG
+            Console.WriteLine("{0} | DEBUG: {1}", DateTime.Now, message);
+#endif
+        }
+
+        static void LogMessage(string message)
         {
             Console.WriteLine("{0} | {1}", DateTime.Now, message);
         }
 
         static void Main(string[] args)
         {
-            logMessage("Starting process");
+            LogMessage("Starting process");
 
-            for (int i = 0; i < args.Length; i++)
+            try
             {
-                if (args[i] == "--username")
-                {
-                    username = args[i + 1];
-                    logMessage("Username provided");
-                }
+                SetProgramArguments(args);
 
-                if (args[i] == "--password")
-                {
-                    password = args[i + 1];
-                    logMessage("Password provided");
-                }
+                SetRouterUrl();
 
-                if (args[i] == "--hostname")
-                {
-                    hostname = args[i + 1];
-                    logMessage("Hostname provided");
-                }
+                StartBrowser();
 
-                if (args[i] == "--protocol")
+                IsUpTimeValid();
+
+                AreDevicesOffline();
+
+                LogMessage("No issues to report");
+            }
+            catch (DriverServiceNotFoundException ex)
+            {
+                LogMessage("Geckodriver could not be found. " + ex.Message);
+            }
+            catch (UnhandledAlertException ex)
+            {
+                LogMessage("Credentials were needed but not provided" + ex.Message);
+            }
+            catch (ApplicationException ex)
+            {
+                HandleRebootException(ex);
+            }
+            catch (WebDriverException ex)
+            {
+                HandleRebootException(ex);
+            }
+            catch (Exception ex)
+            {
+                LogMessage("General exception occurred: " + ex.Message);
+            }
+            finally
+            {
+                if (_driver != null)
                 {
-                    protocol = args[i + 1];
-                    logMessage("Protocol provided");
+                    LogMessage("Closing browser");
+                    _driver.Quit();
                 }
             }
 
+            LogMessage("Process completed");
+        }
+
+        static bool HandleRebootException(Exception exception)
+        {
+            LogMessage(exception.GetType() + exception.Message);
+
+            if (MinUptimeElapsed() == false && AreExceptionHostsOnline() == true)
+            {
+                return false;
+            }
+
+            RebootRouter();
+
+            return true;
+        }
+
+        static void SetProgramArguments(string[] arguments)
+        {
+            for (int i = 0; i < arguments.Length; i++)
+            {
+                if (arguments[i] == "--username")
+                {
+                    username = arguments[i + 1];
+                    DebugMessage("Username provided");
+                }
+
+                if (arguments[i] == "--password")
+                {
+                    password = arguments[i + 1];
+                    DebugMessage("Password provided");
+                }
+
+                if (arguments[i] == "--hostname")
+                {
+                    hostname = arguments[i + 1];
+                    DebugMessage("Hostname provided");
+                }
+
+                if (arguments[i] == "--protocol")
+                {
+                    protocol = arguments[i + 1];
+                    DebugMessage("Protocol provided");
+                }
+            }
+        }
+
+        static void SetRouterUrl()
+        {
             if (username != "" && password != "")
             {
                 router = protocol + "://" + username + ":" + password + "@" + hostname;
@@ -54,48 +126,16 @@ namespace Almostengr.RebootRouter
             {
                 router = protocol + "://" + hostname;
             }
-
-            try
-            {
-                StartBrowser();
-
-                IsUpTimeValid();
-                AreDevicesOffline();
-
-                logMessage("No issues to report");
-            }
-            catch (DriverServiceNotFoundException ex)
-            {
-                logMessage("Geckodriver could not be found. " + ex.Message);
-            }
-            catch (Exception ex)
-            {
-                logMessage("Exception occurred. " + ex.Message);
-
-                if (ex is ApplicationException || ex is WebDriverException)
-                {
-                    if (AreExceptionHostsOnline() == false)
-                    {
-                        RebootRouter();
-                    }
-                }
-            }
-
-            if (_driver != null)
-            {
-                logMessage("Closing browser");
-                _driver.Quit();
-            }
-
-            logMessage("Process completed");
         }
 
         static void StartBrowser()
         {
-            logMessage("Starting browser");
+            LogMessage("Starting browser");
 
             FirefoxOptions firefoxOptions = new FirefoxOptions();
+#if RELEASE
             firefoxOptions.AddArguments("--headless");
+#endif
 
             _driver = new FirefoxDriver(firefoxOptions);
             _driver.Navigate().GoToUrl(router);
@@ -103,7 +143,7 @@ namespace Almostengr.RebootRouter
 
         private static bool AreDevicesOffline()
         {
-            logMessage("Checking to see if Wifi devices are offline");
+            LogMessage("Checking to see if Wifi devices are offline");
             int devicesFound = 0;
 
             string[] deviceMacToCheck = {
@@ -111,36 +151,33 @@ namespace Almostengr.RebootRouter
                 "B2:CF"  // thermostat
             };
 
-            System.Collections.ObjectModel.ReadOnlyCollection<IWebElement> tableCells = _driver.FindElements(By.TagName("td"));
+            string wirelessTableText = _driver.FindElement(By.Id("wireless_table")).Text;
 
             foreach (var device in deviceMacToCheck)
             {
-                foreach (var cell in tableCells)
+                if (wirelessTableText.Contains(device))
                 {
-                    if (cell.Text.Contains(device))
-                    {
-                        logMessage("Found device ending with " + device);
-                        devicesFound++;
-                    }
+                    LogMessage("Found device ending with " + device);
+                    devicesFound++;
                 }
             }
 
-            logMessage("Devices found online: " + devicesFound + " of " + deviceMacToCheck + " total");
+            LogMessage("Devices found online: " + devicesFound + " of " + deviceMacToCheck.Length + " total");
 
             if (devicesFound == deviceMacToCheck.Length)
             {
                 return true;
             }
 
-            return false;
+            throw new ApplicationException("All devices were not found online");
         }
 
         private static void IsUpTimeValid()
         {
-            logMessage("Checking the router uptime");
+            LogMessage("Checking the router uptime");
 
             string upTimeText = _driver.FindElement(By.Id("uptime")).Text;
-            logMessage("Uptime: " + upTimeText);
+            LogMessage("Uptime: " + upTimeText);
 
             if (upTimeText.Contains("8 days") || upTimeText.Contains("9 days"))
             {
@@ -148,32 +185,44 @@ namespace Almostengr.RebootRouter
             }
         }
 
-        static bool AreExceptionHostsOnline()
+        private static bool MinUptimeElapsed()
         {
-            logMessage("Checking for exception hosts are online");
+            LogMessage("Check to see if the minimum uptime has passed");
+            string upTimeText = _driver.FindElement(By.Id("uptime")).Text;
 
-            int currentHour = Int32.Parse(DateTime.Now.ToString("HH"));
-            if (currentHour >= 0 && currentHour <= 7)
+            if (upTimeText.Contains(" min, "))
             {
-                logMessage("Bypassing check due to night time hours");
+                LogMessage("Minimum uptime has not elapsed");
                 return false;
             }
 
-            string[] exceptHosts = { "xx:xx:xx:xx:4E:B7", "aeoffice" };
+            return true;
+        }
+
+        static bool AreExceptionHostsOnline()
+        {
+            LogMessage("Checking for exception hosts are online");
+
+            int currentHour = Int32.Parse(DateTime.Now.ToString("HH"));
+            if (currentHour >= 0 && currentHour < 7)
+            {
+                LogMessage("Bypassing check due to night time hours");
+                return false;
+            }
+
+            string[] exceptionHosts = { "4E:B7", "aeoffice" };
 
             _driver.Navigate().GoToUrl(router + "/Status_Lan.asp");
 
-            var cellElements = _driver.FindElements(By.TagName("td"));
+            string activeClients = _driver.FindElement(By.Id("active_clients_table")).Text;
+            string dhcpLeases = _driver.FindElement(By.Id("dhcp_leases_table")).Text;
 
-            foreach (var host in exceptHosts)
+            foreach (var exceptionItem in exceptionHosts)
             {
-                foreach (var cell in cellElements)
+                if (activeClients.Contains(exceptionItem) || dhcpLeases.Contains(exceptionItem))
                 {
-                    if (host == cell.Text)
-                    {
-                        logMessage("Host was found to be online");
-                        return true;
-                    }
+                    LogMessage("Host was found to be online. " + exceptionItem);
+                    return true;
                 }
             }
 
@@ -182,27 +231,27 @@ namespace Almostengr.RebootRouter
 
         static void RebootRouter()
         {
-            logMessage("Rebooting router");
+            LogMessage("Rebooting router");
 
-            logMessage("Going to Administration page");
+            LogMessage("Going to Administration page");
             _driver.FindElement(By.LinkText("Administration")).Click();
 
-            logMessage("Rebooting router");
+            LogMessage("Rebooting router");
             _driver.FindElement(By.Name("reboot_button")).Click();
 
             string bodyText = _driver.FindElement(By.TagName("body")).Text;
 
             if (bodyText.Contains("Unit is rebooting now. Please wait a moment..."))
             {
-                logMessage("Waiting for router to come back online");
-                Thread.Sleep(60 * 100);
+                LogMessage("Waiting for router to come back online");
+                Thread.Sleep(90 * 100);
             }
             else
             {
-                logMessage("Error occurred when attempting to click reboot button");
+                LogMessage("Error occurred when attempting to click reboot button");
             }
 
-            logMessage("Uptime: " + _driver.FindElement(By.Id("uptime")).Text);
+            LogMessage("Uptime: " + _driver.FindElement(By.Id("uptime")).Text);
         }
     }
 }
