@@ -58,15 +58,15 @@ namespace Almostengr.RebootRouter
 
                 logMessage("No issues to report");
             }
-            catch (WebDriverException ex)
-            {
-                logMessage("Webdriver exception occurred");
-                logMessage(ex.Message);
-                RebootRouter();
-            }
             catch (Exception ex) {
-                logMessage("Generic exception occurred");
+                logMessage("Exception occurred");
                 logMessage(ex.Message);
+
+                if (ex is ApplicationException || ex is WebDriverException) {
+                    if (AreExceptionHostsOnline() == false){
+                        RebootRouter();
+                    }
+                }
             }
 
             logMessage("Closing browser");
@@ -100,7 +100,7 @@ namespace Almostengr.RebootRouter
                 }
             }
 
-            throw new Exception("Sense is NOT connected to router");
+            throw new ApplicationException("Sense is NOT connected to router");
         }
 
         private static bool IsThermostateOnline()
@@ -118,7 +118,7 @@ namespace Almostengr.RebootRouter
                 }
             }
 
-            throw new Exception("Thermostat is NOT connected to router");
+            throw new ApplicationException("Thermostat is NOT connected to router");
         }
 
         private static void IsUpTimeValid()
@@ -130,8 +130,35 @@ namespace Almostengr.RebootRouter
 
             if (upTimeText.Contains("8 days") || upTimeText.Contains("9 days"))
             {
-                throw new Exception("Router uptime was greater than 1 week");
+                throw new ApplicationException("Router uptime was greater than 1 week");
             }
+        }
+
+        static bool AreExceptionHostsOnline() {
+            logMessage("Checking for exception hosts are online");
+
+            int currentHour = Int32.Parse(DateTime.Now.ToString("HH"));
+            if ( currentHour >= 0 && currentHour <= 7 ){
+                logMessage("Bypassing check due to night time hours");
+                return false;
+            }
+
+            string[] exceptHosts = {"xx:xx:xx:xx:4E:B7", "aeoffice"};
+
+            _driver.Navigate().GoToUrl(router + "/Status_Lan.asp");
+
+            var cellElements = _driver.FindElements(By.TagName("td"));
+
+            foreach(var host in exceptHosts){
+                foreach (var cell in cellElements){
+                    if (host == cell.Text){
+                        logMessage("Host was found to be online");
+                        return true;
+                    }
+                }
+            }
+
+            return false;
         }
 
         static void RebootRouter()
