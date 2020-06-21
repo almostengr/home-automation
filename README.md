@@ -31,7 +31,7 @@ This application is built using .NET Core. In order to build it, you can use the
 listed below.
 
 ```sh
-dotnet publish -c Release --runtime linux-x64
+dotnet publish -c Release -o Release --self-contained -r linux-x64
 ```
 
 ## Author
