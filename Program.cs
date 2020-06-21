@@ -10,14 +10,14 @@ namespace Almostengr.RebootRouter
         static IWebDriver _driver = null;
         static string router, protocol = "http", username = "", password = "", hostname = "router";
 
-        static void DebugMessage(string message)
+        private static void DebugMessage(string message)
         {
 #if DEBUG
             Console.WriteLine("{0} | DEBUG: {1}", DateTime.Now, message);
 #endif
         }
 
-        static void LogMessage(string message)
+        private static void LogMessage(string message)
         {
             Console.WriteLine("{0} | {1}", DateTime.Now, message);
         }
@@ -72,7 +72,7 @@ namespace Almostengr.RebootRouter
             LogMessage("Process completed");
         }
 
-        static bool HandleRebootException(Exception exception)
+        private static bool HandleRebootException(Exception exception)
         {
             LogMessage(exception.GetType() + exception.Message);
 
@@ -86,7 +86,7 @@ namespace Almostengr.RebootRouter
             return true;
         }
 
-        static void SetProgramArguments(string[] arguments)
+        private static void SetProgramArguments(string[] arguments)
         {
             for (int i = 0; i < arguments.Length; i++)
             {
@@ -116,7 +116,7 @@ namespace Almostengr.RebootRouter
             }
         }
 
-        static void SetRouterUrl()
+        private static void SetRouterUrl()
         {
             if (username != "" && password != "")
             {
@@ -128,7 +128,7 @@ namespace Almostengr.RebootRouter
             }
         }
 
-        static void StartBrowser()
+        private static void StartBrowser()
         {
             LogMessage("Starting browser");
 
@@ -199,7 +199,7 @@ namespace Almostengr.RebootRouter
             return true;
         }
 
-        static bool AreExceptionHostsOnline()
+        private static bool AreExceptionHostsOnline()
         {
             LogMessage("Checking for exception hosts are online");
 
@@ -229,7 +229,7 @@ namespace Almostengr.RebootRouter
             return false;
         }
 
-        static void RebootRouter()
+        private static void RebootRouter()
         {
             LogMessage("Rebooting router");
 
