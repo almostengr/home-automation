@@ -59,16 +59,18 @@ namespace Almostengr.RebootRouter
             {
                 StartBrowser();
 
-                IsSenseOnline();
                 IsUpTimeValid();
-                IsThermostateOnline();
+                AreDevicesOffline();
 
                 logMessage("No issues to report");
             }
+            catch (DriverServiceNotFoundException ex)
+            {
+                logMessage("Geckodriver could not be found. " + ex.Message);
+            }
             catch (Exception ex)
             {
-                logMessage("Exception occurred");
-                logMessage(ex.Message);
+                logMessage("Exception occurred. " + ex.Message);
 
                 if (ex is ApplicationException || ex is WebDriverException)
                 {
@@ -79,8 +81,11 @@ namespace Almostengr.RebootRouter
                 }
             }
 
-            logMessage("Closing browser");
-            _driver.Quit();
+            if (_driver != null)
+            {
+                logMessage("Closing browser");
+                _driver.Quit();
+            }
 
             logMessage("Process completed");
         }
@@ -96,40 +101,38 @@ namespace Almostengr.RebootRouter
             _driver.Navigate().GoToUrl(router);
         }
 
-        private static bool IsSenseOnline()
+        private static bool AreDevicesOffline()
         {
-            logMessage("Checking to see if Sense is online");
+            logMessage("Checking to see if Wifi devices are offline");
+            int devicesFound = 0;
+
+            string[] deviceMacToCheck = {
+                "E0:76", // energy montior
+                "B2:CF"  // thermostat
+            };
 
             System.Collections.ObjectModel.ReadOnlyCollection<IWebElement> tableCells = _driver.FindElements(By.TagName("td"));
 
-            foreach (var cell in tableCells)
+            foreach (var device in deviceMacToCheck)
             {
-                if (cell.Text == "sense")
+                foreach (var cell in tableCells)
                 {
-                    logMessage("Sense is connected to router");
-                    return true;
+                    if (cell.Text.Contains(device))
+                    {
+                        logMessage("Found device ending with " + device);
+                        devicesFound++;
+                    }
                 }
             }
 
-            throw new ApplicationException("Sense is NOT connected to router");
-        }
+            logMessage("Devices found online: " + devicesFound + " of " + deviceMacToCheck + " total");
 
-        private static bool IsThermostateOnline()
-        {
-            logMessage("Checking to see if thermostat is online");
-
-            System.Collections.ObjectModel.ReadOnlyCollection<IWebElement> tableCells = _driver.FindElements(By.TagName("td"));
-
-            foreach (var cell in tableCells)
+            if (devicesFound == deviceMacToCheck.Length)
             {
-                if (cell.Text == "192.168.59.100")
-                {
-                    logMessage("Thermostat is connected to router");
-                    return true;
-                }
+                return true;
             }
 
-            throw new ApplicationException("Thermostat is NOT connected to router");
+            return false;
         }
 
         private static void IsUpTimeValid()
