@@ -46,7 +46,14 @@ namespace Almostengr.RebootRouter
                 }
             }
 
-            router = (username.Length > 0 && password.Length > 0) ? protocol + "://" + username + ":" + password + "@" + hostname : protocol + "://" + hostname;
+            if (username != "" && password != "")
+            {
+                router = protocol + "://" + username + ":" + password + "@" + hostname;
+            }
+            else
+            {
+                router = protocol + "://" + hostname;
+            }
 
             try
             {
@@ -83,6 +90,7 @@ namespace Almostengr.RebootRouter
             logMessage("Starting browser");
 
             FirefoxOptions firefoxOptions = new FirefoxOptions();
+            firefoxOptions.AddArguments("--headless");
 
             _driver = new FirefoxDriver(firefoxOptions);
             _driver.Navigate().GoToUrl(router);
