@@ -438,3 +438,6 @@ testing.properties
 .classpath
 .project
 .settings/
+
+
+appsettings*json
