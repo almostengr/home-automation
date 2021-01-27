@@ -1,4 +1,4 @@
-# Reboot Router
+# Internet Monitor
 
 Reboots the DD-WRT router when there are no WiFi clients connected to it.
 
