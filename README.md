@@ -22,17 +22,7 @@ way to restart the process would be to reboot the router.
 
 This solution uses Selenium Webdriver to connect to the DD-WRT router web interface. I built this using
 .NET Core, but it could be done on Python, Java, or one of the other platforms that Webdriver works on.
-I also set up a cron job that calls this process to perform the automated task.  The cron job is set to
-run every 20 minutes.  I have it set up on server that is always running.
-
-## Build the Application
-
-This application is built using .NET Core. In order to build it, you can use the example command line
-listed below.
-
-```sh
-dotnet publish -c Release -o Release --self-contained -r linux-x64
-```
+I have it set up on server that is always running and it runs as a system service.
 
 ## Author
 
