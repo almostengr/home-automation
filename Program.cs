@@ -16,8 +16,7 @@ namespace Almostengr.InternetMonitor
                 .UseSystemd()   // specific for linux systems
                 .ConfigureAppConfiguration(
                     builder => new ConfigurationBuilder()
-                    .AddJsonFile("appsettings.json", true, true)
-                    // .AddEnvironmentVariables()
+                    .AddJsonFile("appsettings.json", false, true)
                 )
                 .ConfigureServices((hostContext, services) =>
                 {

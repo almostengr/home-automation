@@ -35,7 +35,7 @@ namespace Almostengr.InternetMonitor
 #if RELEASE
             options.AddArgument("--headless");
             _releaseConfig = true;
-            delayBetweenChecks = 600;
+            _delayBetweenChecks = 600;
 #endif
 
             _logger.LogInformation("Starting the browser");
@@ -80,13 +80,12 @@ namespace Almostengr.InternetMonitor
                 {
                     _logger.LogError(ex, "Exception occurred");
                 }
-                
+
                 _logger.LogInformation("Completed checks at {time}", DateTimeOffset.Now);
 
                 await Task.Delay(TimeSpan.FromSeconds(_delayBetweenChecks), stoppingToken);
             }
         }
-
 
         public override Task StopAsync(CancellationToken cancellationToken)
         {
