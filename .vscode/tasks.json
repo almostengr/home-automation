@@ -7,11 +7,12 @@
             "type": "process",
             "args": [
                 "build",
-                "${workspaceFolder}/rebootrouter.csproj",
+                "${workspaceFolder}/Almostengr.InternetMonitor.csproj",
                 "/property:GenerateFullPaths=true",
                 "/consoleloggerparameters:NoSummary"
             ],
-            "problemMatcher": "$msCompile"
+            "problemMatcher": "$msCompile",
+            "group": "build"
         },
         {
             "label": "publish",
@@ -19,7 +20,7 @@
             "type": "process",
             "args": [
                 "publish",
-                "${workspaceFolder}/rebootrouter.csproj",
+                "${workspaceFolder}/Almostengr.InternetMonitor.csproj",
                 "/property:GenerateFullPaths=true",
                 "/consoleloggerparameters:NoSummary"
             ],
@@ -32,7 +33,7 @@
             "args": [
                 "watch",
                 "run",
-                "${workspaceFolder}/rebootrouter.csproj",
+                "${workspaceFolder}/Almostengr.InternetMonitor.csproj",
                 "/property:GenerateFullPaths=true",
                 "/consoleloggerparameters:NoSummary"
             ],
@@ -56,10 +57,6 @@
                 "tar",
                 "-cf",
                 "release/internetmonitor.tar",
-                "bin/Release/netcoreapp3.1/linux-x64/publish/*",
-                "&&",
-                "zip",
-                "release/internetmonitor.zip",
                 "bin/Release/netcoreapp3.1/linux-x64/publish/*",
                 "&&",
                 "git",

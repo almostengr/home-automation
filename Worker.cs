@@ -29,6 +29,8 @@ namespace Almostengr.InternetMonitor
 
         public override Task StartAsync(CancellationToken cancellationToken)
         {
+            _logger.LogInformation("Starting monitor");
+
             ConfigurationBinder.Bind(_config, _appSettings);
             ChromeOptions options = new ChromeOptions();
 
@@ -51,7 +53,7 @@ namespace Almostengr.InternetMonitor
             {
                 try
                 {
-                    _logger.LogInformation("Starting checks at {time}", DateTimeOffset.Now);
+                    _logger.LogInformation("Performing checks at {time}", DateTimeOffset.Now);
 
                     RouterUrl = SetRouterUrl();
                     bool wifiUp = AreWifiDevicesConnected();
@@ -70,7 +72,7 @@ namespace Almostengr.InternetMonitor
                 }
                 catch (ElementNotVisibleException ex)
                 {
-                    _logger.LogError(ex, "Element count not be found on page");
+                    _logger.LogError(ex, ex.Message);
                 }
                 catch (WebDriverException ex)
                 {
@@ -78,10 +80,10 @@ namespace Almostengr.InternetMonitor
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, "Exception occurred");
+                    _logger.LogError(ex, ex.Message);
                 }
 
-                _logger.LogInformation("Completed checks at {time}", DateTimeOffset.Now);
+                _logger.LogInformation("Done performing checks at {time}", DateTimeOffset.Now);
 
                 await Task.Delay(TimeSpan.FromSeconds(_delayBetweenChecks), stoppingToken);
             }
@@ -89,6 +91,8 @@ namespace Almostengr.InternetMonitor
 
         public override Task StopAsync(CancellationToken cancellationToken)
         {
+            _logger.LogInformation("Shutting down monitor");
+
             if (driver != null)
             {
                 driver.Quit();
@@ -166,7 +170,7 @@ namespace Almostengr.InternetMonitor
             }
         }
 
-        public bool IsModemOperational()
+        private bool IsModemOperational()
         {
             int count = 0;
 
@@ -205,7 +209,7 @@ namespace Almostengr.InternetMonitor
             }
         }
 
-        public bool IsGoogleReachable()
+        private bool IsGoogleReachable()
         {
             _logger.LogInformation("Checking Google");
 
@@ -228,22 +232,24 @@ namespace Almostengr.InternetMonitor
             }
         }
 
-        public bool IsSpectrumReachable()
+        private bool IsRhtServicesReachable()
         {
-            driver.Navigate().GoToUrl("https://www.spectrum.com/");
+            driver.Navigate().GoToUrl("https://rhtservices.net");
 
-            IWebElement manageAccountElement = driver.FindElement(By.LinkText("Manage Account"));
-            if (manageAccountElement.Displayed)
+            IWebElement contactLinkElement = driver.FindElement(By.LinkText("Contact"));
+            if (contactLinkElement.Displayed)
             {
+                _logger.LogInformation("Successfully checked RHT Services");
                 return true;
             }
             else
             {
+                _logger.LogError("Failed to check RHT Services");
                 return false;
             }
         }
 
-        public bool IsAmazonReachable()
+        private bool IsAmazonReachable()
         {
             _logger.LogInformation("Checking Amazon");
             driver.Navigate().GoToUrl("https://www.amazon.com");
@@ -267,6 +273,8 @@ namespace Almostengr.InternetMonitor
             switch (random.Next(0, 3))
             {
                 case 0:
+                    IsRhtServicesReachable();
+                    break;
                 case 1:
                     IsAmazonReachable();
                     break;
