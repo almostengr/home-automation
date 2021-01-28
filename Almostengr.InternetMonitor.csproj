@@ -8,5 +8,7 @@
     <PackageReference Include="Selenium.WebDriver" Version="3.141.0"/>
     <PackageReference Include="Selenium.WebDriver.ChromeDriver" Version="87.0.4280.8800"/>
     <PackageReference Include="Microsoft.Extensions.Hosting.Systemd" Version="3.1.11"/>
+    <Content Remove="appsettings.json" />
+    <Content Include="chromedriver" />
   </ItemGroup>
 </Project>

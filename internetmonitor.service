@@ -1,0 +1,13 @@
+[Unit]
+Description=Internet Connectivity Monitor by almostengr
+After=network.target
+Documentation=https://github.com/almostengr/internetmonitor
+
+[Service]
+Type=simple
+Restart=always
+ExecStart=/usr/lib/internetmonitor/Almostengr.InternetMonitor
+User=root
+
+[Install]
+WantedBy=multi-user.target

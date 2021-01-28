@@ -46,6 +46,10 @@
             "args": [
                 "-c",
                 "\"",
+                "rm",
+                "-r",
+                "${workspaceRoot}/internetmonitor",
+                "&&",
                 "dotnet",
                 "publish",
                 "-r",
@@ -66,6 +70,26 @@
                 "|",
                 "tail",
                 "-1",
+                "\""
+            ],
+            "group": "build"
+        },
+        {
+            "label": "Deploy to Local",
+            "command": "/bin/bash",
+            "type": "shell",
+            "args": [
+                "-c",
+                "\"",
+                "scp",
+                "-pr",
+                "internetmonitor",
+                "iamadmin@media://usr/lib/internetmonitor",
+                "&&",
+                "scp",
+                "-pr",
+                "chromedriver",
+                "iamadmin@media://usr/lib/internetmonitor",
                 "\""
             ],
             "group": "build"
