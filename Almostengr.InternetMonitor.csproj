@@ -10,5 +10,6 @@
     <PackageReference Include="Microsoft.Extensions.Hosting.Systemd" Version="3.1.11"/>
     <Content Remove="appsettings.json" />
     <Content Include="chromedriver" />
+    <Content Include="internetmonitor.service" />
   </ItemGroup>
 </Project>
