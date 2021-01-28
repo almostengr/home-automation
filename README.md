@@ -29,3 +29,20 @@ I have it set up on server that is always running and it runs as a system servic
 Kenny Robinson, @almostengr
 
 [https://thealmostengineer.com](themostengineer.com)
+
+## Checking Job Log
+
+To see the log for the job, run the command
+
+```sh
+journalctl -u internetmonitor -b
+```
+
+## Create System Service on Ubuntu 20.04
+
+```sh
+sudo systemctl status internetmonitor
+sudo systemctl daemon-reload
+sudo systemctl start internetmonitor 
+sudo systemctl status internetmonitor
+```
