@@ -38,11 +38,70 @@ To see the log for the job, run the command
 journalctl -u internetmonitor -b
 ```
 
-## Create System Service on Ubuntu 20.04
+or
 
 ```sh
-sudo systemctl status internetmonitor
+journalctl -u internetmonitor -b -f
+```
+
+## Create System Service on Ubuntu 20.04
+
+```bash
+cp internetmonitor.service /lib/systemd/system
 sudo systemctl daemon-reload
-sudo systemctl start internetmonitor 
+sudo systemctl enable internetmonitor
+sudo systemctl start internetmonitor
 sudo systemctl status internetmonitor
 ```
+
+Once all of the commands above have been ran, you should see an output similar to the following:
+
+```txt
+iamadmin@media:/usr/lib$ sudo systemctl status internetmonitor
+ internetmonitor.service - Internet Connectivity Monitor by almostengr
+     Loaded: loaded (/lib/systemd/system/internetmonitor.service; disabled; vendor preset: enabled)
+     Active: active (running) since Fri 2021-01-29 09:03:45 CST; 13s ago
+       Docs: https://github.com/almostengr/internetmonitor
+   Main PID: 7251 (Almostengr.Inte)
+      Tasks: 14 (limit: 38351)
+     Memory: 19.0M
+     CGroup: /system.slice/internetmonitor.service
+             └─7251 /usr/lib/internetmonitor/Almostengr.InternetMonitor
+
+Jan 29 09:03:45 media Almostengr.InternetMonitor[7279]: ChromeDriver was started successfully.
+Jan 29 09:03:46 media Almostengr.InternetMonitor[7251]: Almostengr.InternetMonitor.Worker[0] Performing checks at 01/29/2021 09:03:46 -06:00
+Jan 29 09:03:46 media Almostengr.InternetMonitor[7251]: Almostengr.InternetMonitor.Worker[0] Converting router URL
+Jan 29 09:03:51 media Almostengr.InternetMonitor[7251]: Almostengr.InternetMonitor.Worker[0] Wireless clients are connected. 11 devices found
+Jan 29 09:03:51 media Almostengr.InternetMonitor[7251]: Almostengr.InternetMonitor.Worker[0] Checking the modem status page
+Jan 29 09:03:53 media Almostengr.InternetMonitor[7251]: Almostengr.InternetMonitor.Worker[0] Checking the CM State page
+Jan 29 09:03:53 media Almostengr.InternetMonitor[7251]: Almostengr.InternetMonitor.Worker[0] Browser has been closed
+Jan 29 09:03:53 media Almostengr.InternetMonitor[7251]: Almostengr.InternetMonitor.Worker[0] Done performing checks at 01/29/2021 09:03:53 -06:00
+Jan 29 09:03:53 media Almostengr.InternetMonitor[7251]: Almostengr.InternetMonitor.Worker[0] Sleeping for 600 seconds
+Jan 29 09:03:53 media Almostengr.InternetMonitor[7251]: Microsoft.Hosting.Lifetime[0] Application started. Hosting environment: Production; Content root path>
+```
+
+## Remove System Service on Ubuntu 20.04
+
+```sh
+sudo systemctl disable internetmonitor
+sudo systemctl stop internetmonitor
+sudo systemctl status internetmonitor
+```
+
+Once all of the commands above have been ran, you should see an output similar to the following:
+
+```txt
+iamadmin@media:/usr/lib$ sudo systemctl status internetmonitor
+ internetmonitor.service - Internet Connectivity Monitor by almostengr
+     Loaded: loaded (/lib/systemd/system/internetmonitor.service; disabled; vendor preset: enabled)
+     Active: inactive (dead)
+       Docs: https://github.com/almostengr/internetmonitor
+
+Jan 29 11:47:48 media systemd[1]: Stopping Internet Connectivity Monitor by almostengr...
+Jan 29 11:47:48 media Almostengr.InternetMonitor[7251]: Microsoft.Hosting.Lifetime[0] Application is shutting down...
+Jan 29 11:47:48 media Almostengr.InternetMonitor[7251]: Almostengr.InternetMonitor.Worker[0] Shutting down monitor
+Jan 29 11:47:48 media Almostengr.InternetMonitor[7251]: Almostengr.InternetMonitor.Worker[0] Browser has been closed
+Jan 29 11:47:48 media systemd[1]: internetmonitor.service: Succeeded.
+Jan 29 11:47:48 media systemd[1]: Stopped Internet Connectivity Monitor by almostengr.
+```
+

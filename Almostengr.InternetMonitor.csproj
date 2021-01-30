@@ -6,10 +6,10 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="3.1.11"/>
     <PackageReference Include="Selenium.WebDriver" Version="3.141.0"/>
-    <PackageReference Include="Selenium.WebDriver.ChromeDriver" Version="87.0.4280.8800"/>
+    <PackageReference Include="Selenium.WebDriver.ChromeDriver" Version="88.0.4324.9600"/>
     <PackageReference Include="Microsoft.Extensions.Hosting.Systemd" Version="3.1.11"/>
-    <Content Remove="appsettings.json" />
-    <Content Include="chromedriver" />
-    <Content Include="internetmonitor.service" />
+    <Content Remove="appsettings.json"/>
+    <Content Include="chromedriver" CopyToPublishDirectory="PreserveNewest" />
+    <Content Include="internetmonitor.service" CopyToPublishDirectory="PreserveNewest" />
   </ItemGroup>
 </Project>

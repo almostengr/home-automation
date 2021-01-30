@@ -7,7 +7,7 @@ Documentation=https://github.com/almostengr/internetmonitor
 Type=simple
 Restart=always
 ExecStart=/usr/lib/internetmonitor/Almostengr.InternetMonitor
-User=root
+User=iamadmin
 
 [Install]
 WantedBy=multi-user.target

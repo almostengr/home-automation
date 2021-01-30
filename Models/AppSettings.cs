@@ -18,6 +18,7 @@ namespace Almostengr.InternetMonitor.Model
         public string Password { get; set; }
         public int MinWirelessClientCount { get; set; }
         public int RebootWait { get; set; }
+        public int? Interval { get; set; }
     }
 
     public class Modem

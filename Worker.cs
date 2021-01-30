@@ -18,7 +18,6 @@ namespace Almostengr.InternetMonitor
         private IWebDriver driver = null;
         private string RouterUrl = "";
         private bool _releaseConfig = false;
-        private int _delayBetweenChecks = 5;
 
         public Worker(ILogger<Worker> logger, IConfiguration configuration)
         {
@@ -30,76 +29,106 @@ namespace Almostengr.InternetMonitor
         public override Task StartAsync(CancellationToken cancellationToken)
         {
             _logger.LogInformation("Starting monitor");
-
             ConfigurationBinder.Bind(_config, _appSettings);
-            ChromeOptions options = new ChromeOptions();
-
-#if RELEASE
-            options.AddArgument("--headless");
-            _releaseConfig = true;
-            _delayBetweenChecks = 600;
-#endif
-
-            _logger.LogInformation("Starting the browser");
-            driver = new ChromeDriver(options);
-            driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(15);
 
             return base.StartAsync(cancellationToken);
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
+            RouterUrl = SetRouterUrl();
+            int delayBetweenChecks = SetDelayBetweenChecks();
+
             while (!stoppingToken.IsCancellationRequested)
             {
                 try
                 {
+                    if (driver == null)
+                    {
+                        StartBrowser();
+                    }
+
                     _logger.LogInformation("Performing checks at {time}", DateTimeOffset.Now);
 
-                    RouterUrl = SetRouterUrl();
                     bool wifiUp = AreWifiDevicesConnected();
-
-                    if (wifiUp == false)
+                    if (wifiUp == false || _releaseConfig == false)
                     {
                         await RebootRouter(stoppingToken);
                     }
 
                     bool modemUp = IsModemOperational();
-
                     if (modemUp == false || _releaseConfig == false)
                     {
                         IsWebsiteReachable();
                     }
+
+                    _logger.LogInformation("Sleeping for {delayBetweenChecks} seconds starting at {Now}", 
+                        new [] {delayBetweenChecks.ToString(), DateTimeOffset.Now.ToString()});
+                    await Task.Delay(TimeSpan.FromSeconds(delayBetweenChecks), stoppingToken);
                 }
                 catch (ElementNotVisibleException ex)
                 {
-                    _logger.LogError(ex, ex.Message);
+                    _logger.LogError(ex, string.Concat(ex.GetType(), ex.Message));
                 }
                 catch (WebDriverException ex)
                 {
-                    _logger.LogError(ex, ex.Message);
+                    _logger.LogError(ex, string.Concat(ex.GetType(), ex.Message));
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, ex.Message);
+                    _logger.LogError(ex, string.Concat(ex.GetType(), ex.Message));
                 }
 
                 _logger.LogInformation("Done performing checks at {time}", DateTimeOffset.Now);
+            } // end while
 
-                await Task.Delay(TimeSpan.FromSeconds(_delayBetweenChecks), stoppingToken);
+            CloseBrowser();
+        }
+
+        private void StartBrowser()
+        {
+            ChromeOptions options = new ChromeOptions();
+
+#if RELEASE
+            _logger.LogInformation("Running in Release mode");
+
+            options.AddArgument("--headless");
+            _releaseConfig = true;
+#endif
+
+            _logger.LogInformation("Starting the browser");
+
+            driver = new ChromeDriver(options);
+            driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(15);
+        }
+
+        private int SetDelayBetweenChecks()
+        {
+            try
+            {
+                return Int32.Parse(_appSettings.Application.Router.Interval.ToString());
+            }
+            catch (Exception)
+            {
+                return 10;
             }
         }
 
         public override Task StopAsync(CancellationToken cancellationToken)
         {
             _logger.LogInformation("Shutting down monitor");
+            CloseBrowser();
 
+            return base.StopAsync(cancellationToken);
+        }
+
+        private void CloseBrowser()
+        {
             if (driver != null)
             {
                 driver.Quit();
                 _logger.LogInformation("Browser has been closed");
             }
-
-            return base.StopAsync(cancellationToken);
         }
 
         private bool AreWifiDevicesConnected()
@@ -139,9 +168,9 @@ namespace Almostengr.InternetMonitor
             }
 
             _logger.LogInformation("Router was rebooted");
-
             _logger.LogInformation("Waiting {seconds} seconds for reboot to complete",
                 _appSettings.Application.Router.RebootWait);
+                
             await Task.Delay(TimeSpan.FromSeconds(_appSettings.Application.Router.RebootWait), stoppingToken);
 
             driver.Navigate().GoToUrl(RouterUrl);
@@ -151,8 +180,10 @@ namespace Almostengr.InternetMonitor
 
         private string SetRouterUrl()
         {
-            if (_appSettings.Application.Router.Username != "" &&
-                _appSettings.Application.Router.Password != "")
+            _logger.LogInformation("Converting router URL");
+
+            if (string.IsNullOrEmpty(_appSettings.Application.Router.Username) == false &&
+                string.IsNullOrEmpty(_appSettings.Application.Router.Password) == false)
             {
                 string protocol = _appSettings.Application.Router.Url
                     .Substring(0, _appSettings.Application.Router.Url.IndexOf("://"));
@@ -199,14 +230,7 @@ namespace Almostengr.InternetMonitor
                 count++;
             }
 
-            if (count == 0)
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
+            return (count == 0) ? true : false;
         }
 
         private bool IsGoogleReachable()

@@ -14,6 +14,9 @@ namespace Almostengr.InternetMonitor
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
                 .UseSystemd()   // specific for linux systems
+                .UseContentRoot(
+                    System.IO.Path.GetDirectoryName(
+                        System.Reflection.Assembly.GetExecutingAssembly().Location))
                 .ConfigureAppConfiguration(
                     builder => new ConfigurationBuilder()
                     .AddJsonFile("appsettings.json", false, true)
