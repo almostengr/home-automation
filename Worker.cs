@@ -62,8 +62,8 @@ namespace Almostengr.InternetMonitor
                         IsWebsiteReachable();
                     }
 
-                    _logger.LogInformation("Sleeping for {delayBetweenChecks} seconds starting at {Now}", 
-                        new [] {delayBetweenChecks.ToString(), DateTimeOffset.Now.ToString()});
+                    _logger.LogInformation("Sleeping for {delayBetweenChecks} seconds starting at {Now}",
+                        new[] { delayBetweenChecks.ToString(), DateTimeOffset.Now.ToString() });
                     await Task.Delay(TimeSpan.FromSeconds(delayBetweenChecks), stoppingToken);
                 }
                 catch (ElementNotVisibleException ex)
@@ -167,15 +167,22 @@ namespace Almostengr.InternetMonitor
                 driver.FindElement(By.Name("reboot_button")).Click();
             }
 
-            _logger.LogInformation("Router was rebooted");
-            _logger.LogInformation("Waiting {seconds} seconds for reboot to complete",
-                _appSettings.Application.Router.RebootWait);
-                
-            await Task.Delay(TimeSpan.FromSeconds(_appSettings.Application.Router.RebootWait), stoppingToken);
+            if (driver.FindElement(By.TagName("body")).Text.Contains("Unit is rebooting now. Please wait a moment..."))
+            {
+                _logger.LogInformation("Router was rebooted");
+                _logger.LogInformation("Waiting {seconds} seconds for reboot to complete",
+                    _appSettings.Application.Router.RebootWait);
 
-            driver.Navigate().GoToUrl(RouterUrl);
+                await Task.Delay(TimeSpan.FromSeconds(_appSettings.Application.Router.RebootWait), stoppingToken);
 
-            _logger.LogInformation("Router is back online and can be reached");
+                driver.Navigate().GoToUrl(RouterUrl);
+
+                _logger.LogInformation("Router is back online and can be reached");
+            }
+            else
+            {
+                _logger.LogError("Unable to reboot router");
+            }
         }
 
         private string SetRouterUrl()
