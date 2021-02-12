@@ -51,13 +51,13 @@ namespace Almostengr.InternetMonitor
                     _logger.LogInformation("Performing checks at {time}", DateTimeOffset.Now);
 
                     bool wifiUp = AreWifiDevicesConnected();
-                    if (wifiUp == false || _releaseConfig == false)
+                    if (wifiUp == false)
                     {
                         await RebootRouter(stoppingToken);
                     }
 
                     bool modemUp = IsModemOperational();
-                    if (modemUp == false || _releaseConfig == false)
+                    if (modemUp == false)
                     {
                         IsWebsiteReachable();
                     }
@@ -118,7 +118,6 @@ namespace Almostengr.InternetMonitor
         {
             _logger.LogInformation("Shutting down monitor");
             CloseBrowser();
-
             return base.StopAsync(cancellationToken);
         }
 
@@ -136,6 +135,8 @@ namespace Almostengr.InternetMonitor
             driver.Navigate().GoToUrl(RouterUrl);
 
             string wirelessTableString = driver.FindElement(By.Id("wireless_table")).Text;
+            _logger.LogInformation("List of connected clients");
+            _logger.LogInformation(wirelessTableString);
             int wirelessTableRows = wirelessTableString.ToLower().Split("xx:xx:xx:xx").Length;
 
             if (wirelessTableRows < _appSettings.Application.Router.MinWirelessClientCount)
@@ -215,7 +216,6 @@ namespace Almostengr.InternetMonitor
             driver.Navigate().GoToUrl(_appSettings.Application.Modem.Url);
 
             _logger.LogInformation("Checking the modem status page");
-
             driver.FindElement(By.LinkText("Status")).Click();
 
             if (driver.PageSource.Contains("OPERATIONAL") == false)
@@ -225,7 +225,6 @@ namespace Almostengr.InternetMonitor
             }
 
             _logger.LogInformation("Checking the CM State page");
-
             driver.FindElement(By.LinkText("CM State")).Click();
 
             IWebElement mainBody = driver.FindElement(By.ClassName("main_body"));
@@ -238,6 +237,29 @@ namespace Almostengr.InternetMonitor
             }
 
             return (count == 0) ? true : false;
+        }
+
+        private void IsWebsiteReachable()
+        {
+            Random random = new Random();
+            switch (random.Next(0, 5))
+            {
+                case 0:
+                    IsYahooReachable();
+                    break;
+                case 1:
+                    IsAmazonReachable();
+                    break;
+                case 2:
+                    IsFacebookReachable();
+                    break;
+                case 3:
+                    IsTwitterReachable();
+                    break;
+                default:
+                    IsGoogleReachable();
+                    break;
+            }
         }
 
         private bool IsGoogleReachable()
@@ -263,23 +285,6 @@ namespace Almostengr.InternetMonitor
             }
         }
 
-        private bool IsRhtServicesReachable()
-        {
-            driver.Navigate().GoToUrl("https://rhtservices.net");
-
-            IWebElement contactLinkElement = driver.FindElement(By.LinkText("Contact"));
-            if (contactLinkElement.Displayed)
-            {
-                _logger.LogInformation("Successfully checked RHT Services");
-                return true;
-            }
-            else
-            {
-                _logger.LogError("Failed to check RHT Services");
-                return false;
-            }
-        }
-
         private bool IsAmazonReachable()
         {
             _logger.LogInformation("Checking Amazon");
@@ -298,20 +303,58 @@ namespace Almostengr.InternetMonitor
             }
         }
 
-        private void IsWebsiteReachable()
+        private bool IsYahooReachable()
         {
-            Random random = new Random();
-            switch (random.Next(0, 3))
+            _logger.LogInformation("Checking Yahoo Finance");
+            driver.Navigate().GoToUrl("https://finance.yahoo.com/");
+            string pageBody = driver.FindElement(By.TagName("body")).Text;
+
+            if (pageBody.ToLower().Contains("nasdaq"))
             {
-                case 0:
-                    IsRhtServicesReachable();
-                    break;
-                case 1:
-                    IsAmazonReachable();
-                    break;
-                default:
-                    IsGoogleReachable();
-                    break;
+                _logger.LogInformation("Successfully checked Yahoo Finance");
+                return true;
+            }
+            else
+            {
+                _logger.LogError("Failed to check Yahoo Finance");
+                return false;
+            }
+        }
+
+        private bool IsTwitterReachable()
+        {
+            _logger.LogInformation("Checking Twitter");
+            driver.Navigate().GoToUrl("https://www.twitter.com");
+            string pageBody = driver.FindElement(By.TagName("body")).Text;
+
+            if (pageBody.ToLower().Contains("twitter"))
+            {
+                _logger.LogInformation("Successfully checked Twitter");
+                return true;
+            }
+            else
+            {
+                _logger.LogError("Failed to check Twitter");
+                return false;
+            }
+        }
+
+        private bool IsFacebookReachable()
+        {
+            _logger.LogInformation("Checking Facebook");
+            driver.Navigate().GoToUrl("https://www.facebook.com");
+            IWebElement emailElement = driver.FindElement(By.Id("email"));
+            IWebElement passwordElement = driver.FindElement(By.Id("password"));
+
+            if (emailElement.Displayed && passwordElement.Displayed)
+            {
+                _logger.LogInformation("Successfully checked Facebook");
+                return true;
+            }
+            else
+            {
+                _logger.LogError("Failed to check Facebook");
+                return false;
             }
         }
     }
