@@ -38,6 +38,7 @@ namespace Almostengr.InternetMonitor
         {
             RouterUrl = SetRouterUrl();
             int delayBetweenChecks = SetDelayBetweenChecks();
+            int failCounter = ResetFailCounter();
 
             while (!stoppingToken.IsCancellationRequested)
             {
@@ -51,9 +52,21 @@ namespace Almostengr.InternetMonitor
                     _logger.LogInformation("Performing checks at {time}", DateTimeOffset.Now);
 
                     bool wifiUp = AreWifiDevicesConnected();
+
                     if (wifiUp == false)
                     {
-                        await RebootRouter(stoppingToken);
+                        failCounter++;
+                        _logger.LogWarning("Fail count: {failCounter}", failCounter);
+
+                        if (failCounter >= 2)
+                        {
+                            await RebootRouter(stoppingToken);
+                            failCounter = ResetFailCounter();
+                        }
+                    }
+                    else
+                    {
+                        failCounter = ResetFailCounter();
                     }
 
                     bool modemUp = IsModemOperational();
@@ -83,6 +96,11 @@ namespace Almostengr.InternetMonitor
             } // end while
 
             CloseBrowser();
+        }
+
+        private int ResetFailCounter()
+        {
+            return 0;
         }
 
         private void StartBrowser()
