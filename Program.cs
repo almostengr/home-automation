@@ -1,3 +1,4 @@
+using Almostengr.InternetMonitor.Model;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -17,12 +18,12 @@ namespace Almostengr.InternetMonitor
                 .UseContentRoot(
                     System.IO.Path.GetDirectoryName(
                         System.Reflection.Assembly.GetExecutingAssembly().Location))
-                .ConfigureAppConfiguration(
-                    builder => new ConfigurationBuilder()
-                    .AddJsonFile("appsettings.json", false, true)
-                )
                 .ConfigureServices((hostContext, services) =>
                 {
+                    IConfiguration configuration = hostContext.Configuration;
+                    AppSettings appSettings = configuration.GetSection(nameof(appSettings)).Get<AppSettings>();
+                    services.AddSingleton(appSettings);
+
                     services.AddHostedService<Worker>();
                 });
     }

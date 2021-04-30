@@ -2,7 +2,6 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Almostengr.InternetMonitor.Model;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using OpenQA.Selenium;
@@ -13,24 +12,20 @@ namespace Almostengr.InternetMonitor
     public class Worker : BackgroundService
     {
         private readonly ILogger<Worker> _logger;
-        private readonly IConfiguration _config;
-        private AppSettings _appSettings;
+        private readonly AppSettings _appSettings;
         private IWebDriver driver = null;
         private string RouterUrl = "";
         private bool _releaseConfig = false;
 
-        public Worker(ILogger<Worker> logger, IConfiguration configuration)
+        public Worker(ILogger<Worker> logger, AppSettings appSettings)
         {
             _logger = logger;
-            _config = configuration;
-            _appSettings = new AppSettings();
+            _appSettings = appSettings;
         }
 
         public override Task StartAsync(CancellationToken cancellationToken)
         {
             _logger.LogInformation("Starting monitor");
-            ConfigurationBinder.Bind(_config, _appSettings);
-
             return base.StartAsync(cancellationToken);
         }
 
@@ -124,7 +119,7 @@ namespace Almostengr.InternetMonitor
         {
             try
             {
-                return Int32.Parse(_appSettings.Application.Router.Interval.ToString());
+                return Int32.Parse(_appSettings.Router.Interval.ToString());
             }
             catch (Exception)
             {
@@ -157,11 +152,11 @@ namespace Almostengr.InternetMonitor
             _logger.LogInformation(wirelessTableString);
             int wirelessTableRows = wirelessTableString.ToLower().Split("xx:xx:xx:xx").Length;
 
-            if (wirelessTableRows < _appSettings.Application.Router.MinWirelessClientCount)
+            if (wirelessTableRows < _appSettings.Router.MinWirelessClientCount)
             {
                 _logger.LogError(string.Concat(
                     "Less than expected wireless clients are connected. Expected: ",
-                    _appSettings.Application.Router.MinWirelessClientCount,
+                    _appSettings.Router.MinWirelessClientCount,
                     " Actual: ",
                     wirelessTableRows
                 ));
@@ -190,9 +185,9 @@ namespace Almostengr.InternetMonitor
             {
                 _logger.LogInformation("Router was rebooted");
                 _logger.LogInformation("Waiting {seconds} seconds for reboot to complete",
-                    _appSettings.Application.Router.RebootWait);
+                    _appSettings.Router.RebootWait);
 
-                await Task.Delay(TimeSpan.FromSeconds(_appSettings.Application.Router.RebootWait), stoppingToken);
+                await Task.Delay(TimeSpan.FromSeconds(_appSettings.Router.RebootWait), stoppingToken);
 
                 driver.Navigate().GoToUrl(RouterUrl);
 
@@ -208,22 +203,22 @@ namespace Almostengr.InternetMonitor
         {
             _logger.LogInformation("Converting router URL");
 
-            if (string.IsNullOrEmpty(_appSettings.Application.Router.Username) == false &&
-                string.IsNullOrEmpty(_appSettings.Application.Router.Password) == false)
+            if (string.IsNullOrEmpty(_appSettings.Router.Username) == false &&
+                string.IsNullOrEmpty(_appSettings.Router.Password) == false)
             {
-                string protocol = _appSettings.Application.Router.Url
-                    .Substring(0, _appSettings.Application.Router.Url.IndexOf("://"));
-                string cleanedUrl = _appSettings.Application.Router.Url
+                string protocol = _appSettings.Router.Url
+                    .Substring(0, _appSettings.Router.Url.IndexOf("://"));
+                string cleanedUrl = _appSettings.Router.Url
                     .Replace("https://", "").Replace("http://", "");
 
                 return protocol + "://" +
-                    _appSettings.Application.Router.Username + ":" +
-                    _appSettings.Application.Router.Password + "@" +
+                    _appSettings.Router.Username + ":" +
+                    _appSettings.Router.Password + "@" +
                     cleanedUrl;
             }
             else
             {
-                return _appSettings.Application.Router.Url;
+                return _appSettings.Router.Url;
             }
         }
 
@@ -231,7 +226,7 @@ namespace Almostengr.InternetMonitor
         {
             int count = 0;
 
-            driver.Navigate().GoToUrl(_appSettings.Application.Modem.Url);
+            driver.Navigate().GoToUrl(_appSettings.Modem.Url);
 
             _logger.LogInformation("Checking the modem status page");
             driver.FindElement(By.LinkText("Status")).Click();

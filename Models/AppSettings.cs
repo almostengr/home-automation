@@ -2,13 +2,16 @@ namespace Almostengr.InternetMonitor.Model
 {
     public class AppSettings
     {
-        public Application Application { get; set; }
-    }
-
-    public class Application
-    {
         public Router Router { get; set; }
         public Modem Modem { get; set; }
+        public HomeAssistant HomeAssistant { get; set; }
+    }
+
+    public class HomeAssistant
+    {
+        public string Url { get; set; }
+        public string Route { get; set; }
+        public string Token { get; set; }
     }
 
     public class Router

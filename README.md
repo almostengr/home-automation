@@ -2,7 +2,7 @@
 
 Reboots the DD-WRT router when there are no WiFi clients connected to it.
 
-## Background
+## Problem
 
 My router would occasionally disconnect any of the wireless clients that were connected to it. Since
 I have wired and wireless devices connected, some of the time I would not know that the wifi had
