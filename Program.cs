@@ -1,4 +1,5 @@
 using Almostengr.InternetMonitor.Model;
+using Almostengr.InternetMonitor.Workers;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -24,7 +25,7 @@ namespace Almostengr.InternetMonitor
                     AppSettings appSettings = configuration.GetSection(nameof(appSettings)).Get<AppSettings>();
                     services.AddSingleton(appSettings);
 
-                    services.AddHostedService<Worker>();
+                    services.AddHostedService<InternetWorker>();
                 });
     }
 }

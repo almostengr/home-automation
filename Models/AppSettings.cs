@@ -10,7 +10,6 @@ namespace Almostengr.InternetMonitor.Model
     public class HomeAssistant
     {
         public string Url { get; set; }
-        public string Route { get; set; }
         public string Token { get; set; }
     }
 
@@ -22,6 +21,7 @@ namespace Almostengr.InternetMonitor.Model
         public int MinWirelessClientCount { get; set; }
         public int RebootWait { get; set; }
         public int? Interval { get; set; }
+        public int FailCount { get; set; }
     }
 
     public class Modem

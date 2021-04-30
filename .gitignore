@@ -439,7 +439,8 @@ testing.properties
 .project
 .settings/
 
-# other files
-
-appsettings.json
-internetmonitor
+##
+## other files
+##
+appsettings.*
+!appsettings.template.json

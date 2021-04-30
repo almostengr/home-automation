@@ -1,31 +1,42 @@
 using System;
+using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Almostengr.InternetMonitor.DataTransfer;
 using Almostengr.InternetMonitor.Model;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
 
-namespace Almostengr.InternetMonitor
+namespace Almostengr.InternetMonitor.Workers
 {
-    public class Worker : BackgroundService
+    public class InternetWorker : BackgroundService
     {
-        private readonly ILogger<Worker> _logger;
+        private readonly ILogger<InternetWorker> _logger;
         private readonly AppSettings _appSettings;
         private IWebDriver driver = null;
         private string RouterUrl = "";
         private bool _releaseConfig = false;
+        private HttpClient _httpClientHA;
+        private StringContent _stringContent;
 
-        public Worker(ILogger<Worker> logger, AppSettings appSettings)
+        public InternetWorker(ILogger<InternetWorker> logger, AppSettings appSettings)
         {
             _logger = logger;
             _appSettings = appSettings;
+
+            _httpClientHA = new HttpClient();
+            _httpClientHA.BaseAddress = new Uri(_appSettings.HomeAssistant.Url);
         }
 
         public override Task StartAsync(CancellationToken cancellationToken)
         {
             _logger.LogInformation("Starting monitor");
+            StartBrowser();
             return base.StartAsync(cancellationToken);
         }
 
@@ -33,27 +44,24 @@ namespace Almostengr.InternetMonitor
         {
             RouterUrl = SetRouterUrl();
             int delayBetweenChecks = SetDelayBetweenChecks();
+            int maxFailCount = SetFailCount();
             int failCounter = ResetFailCounter();
 
             while (!stoppingToken.IsCancellationRequested)
             {
                 try
                 {
-                    if (driver == null)
-                    {
-                        StartBrowser();
-                    }
-
                     _logger.LogInformation("Performing checks at {time}", DateTimeOffset.Now);
 
                     bool wifiUp = AreWifiDevicesConnected();
+                    await PostDataToHomeAssistant("api/states/sensor.router_wifionline", wifiUp.ToString());
 
                     if (wifiUp == false)
                     {
                         failCounter++;
                         _logger.LogWarning("Fail count: {failCounter}", failCounter);
 
-                        if (failCounter >= 2)
+                        if (failCounter >= maxFailCount)
                         {
                             await RebootRouter(stoppingToken);
                             failCounter = ResetFailCounter();
@@ -65,9 +73,16 @@ namespace Almostengr.InternetMonitor
                     }
 
                     bool modemUp = IsModemOperational();
+                    await PostDataToHomeAssistant("api/states/sensor.router_modemoperational", modemUp.ToString());
+
                     if (modemUp == false)
                     {
-                        IsWebsiteReachable();
+                        bool externalAccessible = IsWebsiteReachable();
+                        await PostDataToHomeAssistant("api/states/sensor.router_internetconnected", externalAccessible.ToString());
+                    }
+                    else
+                    {
+                        await PostDataToHomeAssistant("api/states/sensor.router_internetconnected", true.ToString());
                     }
 
                     _logger.LogInformation("Sleeping for {delayBetweenChecks} seconds starting at {Now}",
@@ -124,6 +139,18 @@ namespace Almostengr.InternetMonitor
             catch (Exception)
             {
                 return 10;
+            }
+        }
+
+        private int SetFailCount()
+        {
+            try
+            {
+                return Int32.Parse(_appSettings.Router.FailCount.ToString());
+            }
+            catch (Exception)
+            {
+                return 3;
             }
         }
 
@@ -216,10 +243,8 @@ namespace Almostengr.InternetMonitor
                     _appSettings.Router.Password + "@" +
                     cleanedUrl;
             }
-            else
-            {
-                return _appSettings.Router.Url;
-            }
+
+            return _appSettings.Router.Url;
         }
 
         private bool IsModemOperational()
@@ -252,48 +277,52 @@ namespace Almostengr.InternetMonitor
             return (count == 0) ? true : false;
         }
 
-        private void IsWebsiteReachable()
+        private bool IsWebsiteReachable()
         {
+            bool websiteReached = false;
             Random random = new Random();
+
             switch (random.Next(0, 5))
             {
                 case 0:
-                    IsYahooReachable();
+                    websiteReached = IsYahooReachable();
                     break;
                 case 1:
-                    IsAmazonReachable();
+                    websiteReached = IsAmazonReachable();
                     break;
                 case 2:
-                    IsFacebookReachable();
+                    websiteReached = IsFacebookReachable();
                     break;
                 case 3:
-                    IsTwitterReachable();
+                    websiteReached = IsTwitterReachable();
                     break;
                 default:
-                    IsGoogleReachable();
+                    websiteReached = IsGoogleReachable();
                     break;
             }
+
+            return websiteReached;
         }
 
         private bool IsGoogleReachable()
         {
             _logger.LogInformation("Checking Google");
 
-            driver.Navigate().GoToUrl("https://www.google.com");
-            driver.FindElement(By.Name("q")).SendKeys("current date");
-            driver.FindElement(By.Name("q")).Submit();
-
-            bool dateStringFound = driver.FindElement(By.TagName("body")).Text.Contains(DateTime.Now.ToLongDateString());
-            _logger.LogDebug("Current date: {date}", DateTime.Now.ToLongDateString());
-
-            if (dateStringFound)
+            try
             {
+                driver.Navigate().GoToUrl("https://www.google.com");
+                driver.FindElement(By.Name("q")).SendKeys("current date");
+                driver.FindElement(By.Name("q")).Submit();
+
+                bool dateStringFound = driver.FindElement(By.TagName("body")).Text.Contains(DateTime.Now.ToLongDateString());
+                _logger.LogDebug("Current date: {date}", DateTime.Now.ToLongDateString());
+
                 _logger.LogInformation("Successfully checked Google");
                 return true;
             }
-            else
+            catch (Exception ex)
             {
-                _logger.LogError("Failed to check Google");
+                _logger.LogError(string.Concat("Failed to check Google. ", ex.Message));
                 return false;
             }
         }
@@ -301,17 +330,23 @@ namespace Almostengr.InternetMonitor
         private bool IsAmazonReachable()
         {
             _logger.LogInformation("Checking Amazon");
-            driver.Navigate().GoToUrl("https://www.amazon.com");
 
-            IWebElement searchBoxElement = driver.FindElement(By.Id("twotabsearchtextbox"));
-            if (searchBoxElement.Displayed)
+            try
             {
+                driver.Navigate().GoToUrl("https://www.amazon.com");
+
+                IWebElement searchBoxElement = driver.FindElement(By.Id("twotabsearchtextbox"));
+                if (searchBoxElement.Displayed == false)
+                {
+                    throw new Exception("Search box was not found on page.");
+                }
+
                 _logger.LogInformation("Successfully checked Amazon");
                 return true;
             }
-            else
+            catch (Exception ex)
             {
-                _logger.LogError("Failed to check Amazon");
+                _logger.LogError(string.Concat("Failed to check Amazon. ", ex.Message));
                 return false;
             }
         }
@@ -319,17 +354,23 @@ namespace Almostengr.InternetMonitor
         private bool IsYahooReachable()
         {
             _logger.LogInformation("Checking Yahoo Finance");
-            driver.Navigate().GoToUrl("https://finance.yahoo.com/");
-            string pageBody = driver.FindElement(By.TagName("body")).Text;
 
-            if (pageBody.ToLower().Contains("nasdaq"))
+            try
             {
+                driver.Navigate().GoToUrl("https://finance.yahoo.com/");
+                string pageBody = driver.FindElement(By.TagName("body")).Text;
+
+                if (pageBody.ToLower().Contains("nasdaq") == false)
+                {
+                    throw new Exception("Expected text was not found on page.");
+                }
+
                 _logger.LogInformation("Successfully checked Yahoo Finance");
                 return true;
             }
-            else
+            catch (Exception ex)
             {
-                _logger.LogError("Failed to check Yahoo Finance");
+                _logger.LogError(string.Concat("Failed to check Yahoo Finance. ", ex.Message));
                 return false;
             }
         }
@@ -337,17 +378,22 @@ namespace Almostengr.InternetMonitor
         private bool IsTwitterReachable()
         {
             _logger.LogInformation("Checking Twitter");
-            driver.Navigate().GoToUrl("https://www.twitter.com");
-            string pageBody = driver.FindElement(By.TagName("body")).Text;
-
-            if (pageBody.ToLower().Contains("twitter"))
+            try
             {
+                driver.Navigate().GoToUrl("https://www.twitter.com");
+                string pageBody = driver.FindElement(By.TagName("body")).Text;
+
+                if (pageBody.ToLower().Contains("twitter") == false)
+                {
+                    throw new Exception("Expected text was not found on page");
+                }
+
                 _logger.LogInformation("Successfully checked Twitter");
                 return true;
             }
-            else
+            catch (Exception ex)
             {
-                _logger.LogError("Failed to check Twitter");
+                _logger.LogError(string.Concat("Failed to check Twitter. ", ex.Message));
                 return false;
             }
         }
@@ -355,20 +401,70 @@ namespace Almostengr.InternetMonitor
         private bool IsFacebookReachable()
         {
             _logger.LogInformation("Checking Facebook");
-            driver.Navigate().GoToUrl("https://www.facebook.com");
-            IWebElement emailElement = driver.FindElement(By.Id("email"));
-            IWebElement passwordElement = driver.FindElement(By.Id("password"));
 
-            if (emailElement.Displayed && passwordElement.Displayed)
+            try
             {
+                driver.Navigate().GoToUrl("https://www.facebook.com");
+                IWebElement emailElement = driver.FindElement(By.Id("email"));
+                IWebElement passwordElement = driver.FindElement(By.Id("password"));
+
+                if (emailElement.Displayed == false || passwordElement.Displayed == false)
+                {
+                    throw new Exception("Expected text was not found on page");
+                }
+
                 _logger.LogInformation("Successfully checked Facebook");
                 return true;
             }
-            else
+            catch (Exception ex)
             {
-                _logger.LogError("Failed to check Facebook");
+                _logger.LogError(string.Concat("Failed to check Facebook. ", ex.Message));
                 return false;
             }
         }
+
+        private async Task PostDataToHomeAssistant(string route, string sensorData)
+        {
+            _logger.LogInformation("Sending data to Home Assistant");
+
+            try
+            {
+                SensorState sensorState = new SensorState(sensorData);
+                var jsonState = JsonConvert.SerializeObject(sensorState).ToLower();
+                _stringContent = new StringContent(jsonState, Encoding.ASCII, "application/json");
+
+                _httpClientHA.DefaultRequestHeaders.Authorization =
+                    new AuthenticationHeaderValue("Bearer", _appSettings.HomeAssistant.Token);
+
+                HttpResponseMessage response = await _httpClientHA.PostAsync(route, _stringContent);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    HaApiResponse haApiResponse =
+                        JsonConvert.DeserializeObject<HaApiResponse>(response.Content.ReadAsStringAsync().Result);
+                    _logger.LogInformation(response.StatusCode.ToString());
+                    _logger.LogInformation("Updated: " + haApiResponse.Last_Updated.ToString());
+                }
+                else
+                {
+                    _logger.LogError(response.StatusCode.ToString());
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+            }
+
+            if (_stringContent != null)
+                _stringContent.Dispose();
+        }
+
+        public override void Dispose()
+        {
+            _httpClientHA.Dispose();
+            _stringContent.Dispose();
+            base.Dispose();
+        }
+
     }
 }
