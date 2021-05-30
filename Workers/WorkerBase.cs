@@ -14,50 +14,32 @@ using OpenQA.Selenium.Chrome;
 
 namespace Almostengr.InternetMonitor.Workers
 {
-    public class WorkerBase : BackgroundService
+    public abstract class WorkerBase : BackgroundService
     {
         private readonly ILogger<WorkerBase> _logger;
         private readonly AppSettings _appSettings;
         private IWebDriver driver = null;
-        private string RouterUrl = "";
-        private bool _releaseConfig = false;
-        private HttpClient _httpClientHA;
-        private StringContent _stringContent;
+        internal HttpClient _httpClientHA;
+        internal readonly int DelayBetweenChecks;
+        internal readonly int MaxFailCount;
 
         public WorkerBase(ILogger<WorkerBase> logger, AppSettings appSettings)
         {
             _logger = logger;
             _appSettings = appSettings;
+
+            _httpClientHA = new HttpClient();
+            _httpClientHA.BaseAddress = new Uri(_appSettings.HomeAssistant.Url);
+
+            DelayBetweenChecks = SetDelayBetweenChecks();
+
+            MaxFailCount = SetFailCount();
         }
 
         public override void Dispose()
         {
+            _httpClientHA.Dispose();
             base.Dispose();
-        }
-
-        public override bool Equals(object obj)
-        {
-            return base.Equals(obj);
-        }
-
-        public override int GetHashCode()
-        {
-            return base.GetHashCode();
-        }
-
-        public override Task StartAsync(CancellationToken cancellationToken)
-        {
-            return base.StartAsync(cancellationToken);
-        }
-
-        public override Task StopAsync(CancellationToken cancellationToken)
-        {
-            return base.StopAsync(cancellationToken);
-        }
-
-        public override string ToString()
-        {
-            return base.ToString();
         }
 
         protected override Task ExecuteAsync(CancellationToken stoppingToken)
@@ -65,12 +47,17 @@ namespace Almostengr.InternetMonitor.Workers
             throw new System.NotImplementedException();
         }
 
-        public int ResetFailCounter()
+        public async Task TaskDelayShort(CancellationToken stoppingToken)
         {
-            return 0;
+            await Task.Delay(TimeSpan.FromSeconds(15), stoppingToken);
         }
 
-        public void StartBrowser()
+        public async Task TaskDelayLong(CancellationToken stoppingToken)
+        {
+            await Task.Delay(TimeSpan.FromMinutes(DelayBetweenChecks), stoppingToken);
+        }
+
+        public IWebDriver StartBrowser()
         {
             ChromeOptions options = new ChromeOptions();
 
@@ -85,9 +72,11 @@ namespace Almostengr.InternetMonitor.Workers
 
             driver = new ChromeDriver(options);
             driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(15);
+
+            return driver;
         }
 
-        public int SetDelayBetweenChecks()
+        private int SetDelayBetweenChecks()
         {
             try
             {
@@ -99,7 +88,7 @@ namespace Almostengr.InternetMonitor.Workers
             }
         }
 
-        public int SetFailCount()
+        private int SetFailCount()
         {
             try
             {
@@ -111,8 +100,7 @@ namespace Almostengr.InternetMonitor.Workers
             }
         }
 
-        
-        public void CloseBrowser()
+        public void CloseBrowser(IWebDriver driver)
         {
             if (driver != null)
             {
@@ -121,41 +109,38 @@ namespace Almostengr.InternetMonitor.Workers
             }
         }
 
-        
         public async Task PostDataToHomeAssistant(string route, string sensorData)
         {
             _logger.LogInformation("Sending data to Home Assistant");
 
             try
             {
-                SensorState sensorState = new SensorState(sensorData);
-                var jsonState = JsonConvert.SerializeObject(sensorState).ToLower();
-                _stringContent = new StringContent(jsonState, Encoding.ASCII, "application/json");
-
-                _httpClientHA.DefaultRequestHeaders.Authorization =
-                    new AuthenticationHeaderValue("Bearer", _appSettings.HomeAssistant.Token);
-
-                HttpResponseMessage response = await _httpClientHA.PostAsync(route, _stringContent);
-
-                if (response.IsSuccessStatusCode)
+                var jsonState = JsonConvert.SerializeObject(new SensorState(sensorData)).ToLower();
+                using (StringContent _stringContent = new StringContent(jsonState, Encoding.ASCII, "application/json"))
                 {
-                    HaApiResponse haApiResponse =
-                        JsonConvert.DeserializeObject<HaApiResponse>(response.Content.ReadAsStringAsync().Result);
-                    _logger.LogInformation(response.StatusCode.ToString());
-                    _logger.LogInformation("Updated: " + haApiResponse.Last_Updated.ToString());
-                }
-                else
-                {
-                    _logger.LogError(response.StatusCode.ToString());
+                    _httpClientHA.DefaultRequestHeaders.Authorization =
+                        new AuthenticationHeaderValue("Bearer", _appSettings.HomeAssistant.Token);
+
+                    HttpResponseMessage response = await _httpClientHA.PostAsync(route, _stringContent);
+
+                    if (response.IsSuccessStatusCode)
+                    {
+                        HaApiResponse haApiResponse =
+                            JsonConvert.DeserializeObject<HaApiResponse>(response.Content.ReadAsStringAsync().Result);
+                        _logger.LogInformation(response.StatusCode.ToString());
+                        _logger.LogInformation("Updated: " + haApiResponse.Last_Updated.ToString());
+                    }
+                    else
+                    {
+                        _logger.LogError(response.StatusCode.ToString());
+                    }
                 }
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex.Message);
+                // _logger.LogError(ex.Message);
+                _logger.LogError(ex, string.Concat(ex.GetType(), ex.Message));
             }
-
-            if (_stringContent != null)
-                _stringContent.Dispose();
         }
     }
 }
