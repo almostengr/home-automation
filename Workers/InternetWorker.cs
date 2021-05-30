@@ -14,7 +14,7 @@ using OpenQA.Selenium.Chrome;
 
 namespace Almostengr.InternetMonitor.Workers
 {
-    public class InternetWorker : BackgroundService
+    public class InternetWorker : WorkerBase
     {
         private readonly ILogger<InternetWorker> _logger;
         private readonly AppSettings _appSettings;
@@ -24,7 +24,7 @@ namespace Almostengr.InternetMonitor.Workers
         private HttpClient _httpClientHA;
         private StringContent _stringContent;
 
-        public InternetWorker(ILogger<InternetWorker> logger, AppSettings appSettings)
+        public InternetWorker(ILogger<InternetWorker> logger, AppSettings appSettings) : base(logger, appSettings)
         {
             _logger = logger;
             _appSettings = appSettings;
@@ -108,51 +108,6 @@ namespace Almostengr.InternetMonitor.Workers
             CloseBrowser();
         }
 
-        private int ResetFailCounter()
-        {
-            return 0;
-        }
-
-        private void StartBrowser()
-        {
-            ChromeOptions options = new ChromeOptions();
-
-#if RELEASE
-            _logger.LogInformation("Running in Release mode");
-
-            options.AddArgument("--headless");
-            _releaseConfig = true;
-#endif
-
-            _logger.LogInformation("Starting the browser");
-
-            driver = new ChromeDriver(options);
-            driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(15);
-        }
-
-        private int SetDelayBetweenChecks()
-        {
-            try
-            {
-                return Int32.Parse(_appSettings.Router.Interval.ToString());
-            }
-            catch (Exception)
-            {
-                return 10;
-            }
-        }
-
-        private int SetFailCount()
-        {
-            try
-            {
-                return Int32.Parse(_appSettings.Router.FailCount.ToString());
-            }
-            catch (Exception)
-            {
-                return 3;
-            }
-        }
 
         public override Task StopAsync(CancellationToken cancellationToken)
         {
@@ -161,14 +116,6 @@ namespace Almostengr.InternetMonitor.Workers
             return base.StopAsync(cancellationToken);
         }
 
-        private void CloseBrowser()
-        {
-            if (driver != null)
-            {
-                driver.Quit();
-                _logger.LogInformation("Browser has been closed");
-            }
-        }
 
         private bool AreWifiDevicesConnected()
         {
@@ -423,41 +370,6 @@ namespace Almostengr.InternetMonitor.Workers
             }
         }
 
-        private async Task PostDataToHomeAssistant(string route, string sensorData)
-        {
-            _logger.LogInformation("Sending data to Home Assistant");
-
-            try
-            {
-                SensorState sensorState = new SensorState(sensorData);
-                var jsonState = JsonConvert.SerializeObject(sensorState).ToLower();
-                _stringContent = new StringContent(jsonState, Encoding.ASCII, "application/json");
-
-                _httpClientHA.DefaultRequestHeaders.Authorization =
-                    new AuthenticationHeaderValue("Bearer", _appSettings.HomeAssistant.Token);
-
-                HttpResponseMessage response = await _httpClientHA.PostAsync(route, _stringContent);
-
-                if (response.IsSuccessStatusCode)
-                {
-                    HaApiResponse haApiResponse =
-                        JsonConvert.DeserializeObject<HaApiResponse>(response.Content.ReadAsStringAsync().Result);
-                    _logger.LogInformation(response.StatusCode.ToString());
-                    _logger.LogInformation("Updated: " + haApiResponse.Last_Updated.ToString());
-                }
-                else
-                {
-                    _logger.LogError(response.StatusCode.ToString());
-                }
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex.Message);
-            }
-
-            if (_stringContent != null)
-                _stringContent.Dispose();
-        }
 
         public override void Dispose()
         {
