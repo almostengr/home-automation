@@ -25,7 +25,8 @@ namespace Almostengr.InternetMonitor
                     AppSettings appSettings = configuration.GetSection(nameof(appSettings)).Get<AppSettings>();
                     services.AddSingleton(appSettings);
 
-                    services.AddHostedService<InternetWorker>();
+                    services.AddHostedService<DdWrtRouterWorker>();
+                    services.AddHostedService<ArrisModemWorker>();
                 });
     }
 }
