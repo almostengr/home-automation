@@ -1,5 +1,4 @@
 using System;
-using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using Almostengr.InternetMonitor.Model;
@@ -19,9 +18,6 @@ namespace Almostengr.InternetMonitor.Workers
         {
             _logger = logger;
             _appSettings = appSettings;
-
-            _httpClientHA = new HttpClient();
-            _httpClientHA.BaseAddress = new Uri(_appSettings.HomeAssistant.Url);
 
             RouterUrl = SetRouterUrl();
         }

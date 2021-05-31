@@ -19,7 +19,7 @@ namespace Almostengr.InternetMonitor.Workers
         private readonly ILogger<WorkerBase> _logger;
         private readonly AppSettings _appSettings;
         private IWebDriver driver = null;
-        internal HttpClient _httpClientHA;
+        internal readonly HttpClient _httpClientHA;
         internal readonly int DelayBetweenChecks;
         internal readonly int MaxFailCount;
 
@@ -138,7 +138,6 @@ namespace Almostengr.InternetMonitor.Workers
             }
             catch (Exception ex)
             {
-                // _logger.LogError(ex.Message);
                 _logger.LogError(ex, string.Concat(ex.GetType(), ex.Message));
             }
         }
