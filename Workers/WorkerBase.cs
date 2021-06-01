@@ -19,8 +19,7 @@ namespace Almostengr.InternetMonitor.Workers
         private readonly ILogger<WorkerBase> _logger;
         private readonly AppSettings _appSettings;
         private IWebDriver driver = null;
-        internal readonly HttpClient _httpClientHA;
-        internal readonly int DelayBetweenChecks;
+        private readonly HttpClient _httpClientHA;
         internal readonly int MaxFailCount;
 
         public WorkerBase(ILogger<WorkerBase> logger, AppSettings appSettings)
@@ -30,8 +29,6 @@ namespace Almostengr.InternetMonitor.Workers
 
             _httpClientHA = new HttpClient();
             _httpClientHA.BaseAddress = new Uri(_appSettings.HomeAssistant.Url);
-
-            DelayBetweenChecks = SetDelayBetweenChecks();
 
             MaxFailCount = SetFailCount();
         }
@@ -54,7 +51,7 @@ namespace Almostengr.InternetMonitor.Workers
 
         public async Task TaskDelayLong(CancellationToken stoppingToken)
         {
-            await Task.Delay(TimeSpan.FromMinutes(DelayBetweenChecks), stoppingToken);
+            await Task.Delay(TimeSpan.FromMinutes(10), stoppingToken);
         }
 
         public IWebDriver StartBrowser()
@@ -65,7 +62,6 @@ namespace Almostengr.InternetMonitor.Workers
             _logger.LogInformation("Running in Release mode");
 
             options.AddArgument("--headless");
-            _releaseConfig = true;
 #endif
 
             _logger.LogInformation("Starting the browser");
@@ -74,18 +70,6 @@ namespace Almostengr.InternetMonitor.Workers
             driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(15);
 
             return driver;
-        }
-
-        private int SetDelayBetweenChecks()
-        {
-            try
-            {
-                return Int32.Parse(_appSettings.Router.Interval.ToString());
-            }
-            catch (Exception)
-            {
-                return 10;
-            }
         }
 
         private int SetFailCount()
@@ -127,8 +111,11 @@ namespace Almostengr.InternetMonitor.Workers
                     {
                         HaApiResponse haApiResponse =
                             JsonConvert.DeserializeObject<HaApiResponse>(response.Content.ReadAsStringAsync().Result);
-                        _logger.LogInformation(response.StatusCode.ToString());
-                        _logger.LogInformation("Updated: " + haApiResponse.Last_Updated.ToString());
+                        _logger.LogInformation("{status}; Updated: {update}", 
+                            new string[] {
+                                response.StatusCode.ToString(),
+                                haApiResponse.Last_Updated.ToString()
+                            });
                     }
                     else
                     {

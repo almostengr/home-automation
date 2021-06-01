@@ -19,7 +19,6 @@ namespace Almostengr.InternetMonitor.Model
         public string Username { get; set; }
         public string Password { get; set; }
         public int MinWirelessClientCount { get; set; }
-        public int? Interval { get; set; }
         public int FailCount { get; set; }
     }
 

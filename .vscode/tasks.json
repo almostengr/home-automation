@@ -15,18 +15,6 @@
             "group": "build"
         },
         {
-            "label": "publish",
-            "command": "dotnet",
-            "type": "process",
-            "args": [
-                "publish",
-                "${workspaceFolder}/Almostengr.InternetMonitor.csproj",
-                "/property:GenerateFullPaths=true",
-                "/consoleloggerparameters:NoSummary"
-            ],
-            "problemMatcher": "$msCompile"
-        },
-        {
             "label": "watch",
             "command": "dotnet",
             "type": "process",
@@ -40,44 +28,54 @@
             "problemMatcher": "$msCompile"
         },
         {
-            "label": "Deploy to Local",
-            "command": "/bin/bash",
+            "label": "Clean debug folder",
+            "command" : "dotnet",
             "type": "shell",
             "args": [
-                "-c",
-                "\"",
-                "dotnet",
                 "clean",
                 "-c",
-                "DEBUG",
-                "&&",
-                "dotnet",
+                "DEBUG"
+            ],
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "Clean release folder",
+            "command" : "dotnet",
+            "type": "shell",
+            "args": [
                 "clean",
                 "-c",
-                "RELEASE",
-                "&&",
-                "dotnet",
+                "RELEASE"
+            ],
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "Publish release",
+            "command" : "dotnet",
+            "type": "shell",
+            "args": [
                 "publish",
-                "--self-contained",
-                "-r",
-                "ubuntu.20.04-x64",
                 "-c",
                 "RELEASE",
-                "&&",
-                "scp",
+                "-r",
+                "ubuntu.20.04-x64"
+            ],
+            "dependsOn": ["Clean release folder"],
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "Publish release to local",
+            "command" : "scp",
+            "type": "shell",
+            "args": [
                 "-pr",
                 "chromedriver",
                 "internetmonitor.service",
                 "${workspaceRoot}/bin/RELEASE/netcoreapp3.1/ubuntu.20.04-x64/publish/*",
                 "iamadmin@media://usr/lib/internetmonitor",
-                "&&",
-                "dotnet",
-                "clean",
-                "-c",
-                "RELEASE",
-                "\""
             ],
-            "group": "build"
-        }
+            "dependsOn": ["Publish release"],
+            "problemMatcher": "$msCompile"
+        },
     ]
 }

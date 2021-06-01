@@ -49,6 +49,9 @@ namespace Almostengr.InternetMonitor.Workers
                 catch (Exception ex)
                 {
                     _logger.LogError(ex, string.Concat(ex.GetType(), ex.Message));
+
+                    await PostDataToHomeAssistant("api/states/sensor.router_modemoperational", false.ToString());
+                    
                     await TaskDelayShort(stoppingToken);
                 }
             }
@@ -63,6 +66,7 @@ namespace Almostengr.InternetMonitor.Workers
             driver.Navigate().GoToUrl(_appSettings.Modem.Url);
 
             _logger.LogInformation("Checking the modem status page");
+
             driver.FindElement(By.LinkText("Status")).Click();
 
             if (driver.PageSource.Contains("OPERATIONAL") == false)
@@ -72,6 +76,7 @@ namespace Almostengr.InternetMonitor.Workers
             }
 
             _logger.LogInformation("Checking the CM State page");
+            
             driver.FindElement(By.LinkText("CM State")).Click();
 
             IWebElement mainBody = driver.FindElement(By.ClassName("main_body"));
