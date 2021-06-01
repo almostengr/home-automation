@@ -114,6 +114,7 @@ namespace Almostengr.InternetMonitor.Workers
                     new string[] {
                         _appSettings.Router.MinWirelessClientCount.ToString(),
                         wirelessTableRows.ToString() });
+
                 return false;
             }
             else
