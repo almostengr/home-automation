@@ -39,6 +39,7 @@ namespace Almostengr.InternetMonitor.Workers
                 try
                 {
                     bool wifiUp = AreWifiDevicesConnected();
+
                     await PostDataToHomeAssistant("api/states/sensor.router_wifionline", wifiUp.ToString());
 
                     if (wifiUp == false)
@@ -62,6 +63,9 @@ namespace Almostengr.InternetMonitor.Workers
                 catch (Exception ex)
                 {
                     _logger.LogError(ex, string.Concat(ex.GetType(), ex.Message));
+
+                    await PostDataToHomeAssistant("api/states/sensor.router_wifionline", false.ToString());
+
                     await TaskDelayShort(stoppingToken);
                 }
             }
@@ -105,12 +109,11 @@ namespace Almostengr.InternetMonitor.Workers
 
             if (wirelessTableRows < _appSettings.Router.MinWirelessClientCount)
             {
-                _logger.LogError(string.Concat(
-                    "Less than expected wireless clients are connected. Expected: ",
-                    _appSettings.Router.MinWirelessClientCount,
-                    " Actual: ",
-                    wirelessTableRows
-                ));
+                _logger.LogError(
+                    "Less than expected wireless clients are connected. Expected: {expected}, Actual: {actual}",
+                    new string[] {
+                        _appSettings.Router.MinWirelessClientCount.ToString(),
+                        wirelessTableRows.ToString() });
                 return false;
             }
             else
@@ -122,7 +125,7 @@ namespace Almostengr.InternetMonitor.Workers
 
         private async Task RebootRouter(CancellationToken stoppingToken)
         {
-            int routerRebootSeconds = 90;
+            const int routerRebootSeconds = 90;
 
             _logger.LogInformation("Rebooting router");
 
