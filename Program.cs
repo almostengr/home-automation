@@ -26,7 +26,6 @@ namespace Almostengr.InternetMonitor
                     services.AddSingleton(appSettings);
 
                     services.AddHostedService<DdWrtRouterWorker>();
-                    services.AddHostedService<ArrisModemWorker>();
                 });
     }
 }
