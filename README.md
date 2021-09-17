@@ -13,4 +13,3 @@ command line or using Visual Studio.
 ```sh
 transcriptcleaner C:\\Users\\almostengr\\Desktop\\transcript.sbv
 ```
-9892458213
