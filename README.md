@@ -8,13 +8,9 @@ as well as to be used on YouTube after they have been proofread and properly for
 To use this application, you will have to compile it like any other .NET Core application either via the 
 command line or using Visual Studio.
 
-The application will output two files.
-
-* First file can be uploaded back to YouTube as a transcript or captions that has some formatting applied to it
-* Second file has the full transcript with the timestamps removed so that it can be used in a blog post or other media
-
 ## Example Usage on Linux
 
 ```sh
 transcriptcleaner C:\\Users\\almostengr\\Desktop\\transcript.sbv
 ```
+9892458213
