@@ -8,8 +8,10 @@ as well as to be used on YouTube after they have been proofread and properly for
 To use this application, you will have to compile it like any other .NET Core application either via the 
 command line or using Visual Studio.
 
+This application is designed to only process SRT caption files.
+
 ## Example Usage on Linux
 
 ```sh
-transcriptcleaner C:\\Users\\almostengr\\Desktop\\transcript.sbv
+transcriptcleaner /home/almostengr/Documents/transcript.srt
 ```
