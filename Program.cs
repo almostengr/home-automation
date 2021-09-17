@@ -8,14 +8,14 @@ namespace Almostengr.RhtServices.TranscriptCleaner
     {
         static void Main(string[] args)
         {
-            string transcriptFilePath = args[0];
-
             try
             {
+                string transcriptFilePath = args[0];
+
                 if (transcriptFilePath == string.Empty || transcriptFilePath == null)
                 {
                     DisplayHelp();
-                    throw new ArgumentException("Transcript file path not provided");
+                    throw new ArgumentNullException("Transcript file path not provided or does not exist");
                 }
 
                 List<string> lines = ReadTranscriptContents(transcriptFilePath);

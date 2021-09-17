@@ -11,7 +11,7 @@
             "preLaunchTask": "build",
             "program": "${workspaceFolder}/bin/Debug/netcoreapp3.1/Almostengr.RhtServices.TranscriptCleaner.dll",
             "args": [
-                "/home/almostengineer/Downloads/captions (1).srt",
+                "/home/almostengineer/Desktop/captions/captions (1).srt",
             ],
             "cwd": "${workspaceFolder}",
             "console": "internalConsole",
