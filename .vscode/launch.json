@@ -14,7 +14,7 @@
             "cwd": "${workspaceFolder}/Almostengr.TranscriptCleaner.Api",
             "stopAtEntry": false,
             "serverReadyAction": {
-                "action": "openExternally",
+                "action": "startDebugging",
                 "pattern": "\\bNow listening on:\\s+(https?://\\S+)"
             },
             "env": {

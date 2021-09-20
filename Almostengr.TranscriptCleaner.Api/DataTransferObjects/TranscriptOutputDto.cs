@@ -4,6 +4,6 @@ namespace Almostengr.TranscriptCleaner.Api.DataTransferObjects
     {
         public string BlogText { get; set; }
         public string VideoText { get; set; }
-        
+        public int BlogWords { get; set; }
     }
 }
