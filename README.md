@@ -1,8 +1,10 @@
 # Transcript Cleaner
 
-Cleans transcripts for videos that have been downloaded from YouTube. 
+Cleans transcripts that have been download from YouTube. 
 
-This application is used to create blog posts on by business website [rhtservices.net](https://rhtservices.net) 
+This application is used to create blog posts on by business website [rhtservices.net](https://rhtservices.net),
+[business Facebook page](https://www.facebook.com/rhtservicesllc), 
+my blog [thealmostengineer.com](https://thealmostengineer.com),
 as well as to be used on YouTube after they have been proofread and properly formatted.
 
 To use this application, you will have to compile it like any other .NET Core application either via the 
