@@ -37,6 +37,45 @@
                 "/consoleloggerparameters:NoSummary"
             ],
             "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "Clean Release Project",
+            "command": "dotnet",
+            "type": "shell",
+            "args": [
+                "clean",
+                "-c",
+                "Release",
+            ],
+            "group": "none"
+        },
+        {
+            "label": "Publish Release",
+            "command": "dotnet",
+            "type": "shell",
+            "args": [
+                "publish",
+                "-r",
+                "linux-x64",
+                "-c",
+                "Release",
+                "*sln"
+            ],
+            "group": "none",
+            "dependsOn": ["Clean Release Project"]
+        },
+        {
+            "label": "Deploy Local",
+            "command": "scp",
+            "type": "shell",
+            "args": [
+                "-p",
+                "${workspaceRoot}/Almostengr.TranscriptCleaner.Api/bin/Release/net5.0/linux-x64/*",
+                "${workspaceRoot}/LinuxService/*",
+                "iamadmin@media://home/iamadmin/automation/transcriptcleaner"
+            ],
+            "group": "none",
+            "dependsOn": ["Publish Release"]
         }
     ]
 }
