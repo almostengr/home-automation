@@ -6,7 +6,7 @@ using Microsoft.Extensions.Logging;
 namespace Almostengr.TranscriptCleaner.Api.Controllers
 {
     [ApiController]
-    [Route("v1/[controller]")]
+    [Route("api/v1/[controller]")]
     public class TranscriptController : ControllerBase
     {
         private readonly ILogger<TranscriptController> _logger;
@@ -51,7 +51,9 @@ namespace Almostengr.TranscriptCleaner.Api.Controllers
                 videoString += cleanedLine + Constants.NewLine;
 
                 if (counter == 3)
+                {
                     blogString += cleanedLine + Constants.Space;
+                }
             }
 
             blogString = RemoveDupesFromBlogString(blogString);
