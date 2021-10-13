@@ -30,7 +30,7 @@ namespace Almostengr.InternetMonitor.Workers
             _httpClientHA = new HttpClient();
             _httpClientHA.BaseAddress = new Uri(_appSettings.HomeAssistant.Url);
 
-            MaxFailCount = SetFailCount();
+            MaxFailCount = 3;
         }
 
         public override void Dispose()
@@ -67,21 +67,9 @@ namespace Almostengr.InternetMonitor.Workers
             _logger.LogInformation("Starting the browser");
 
             driver = new ChromeDriver(options);
-            driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(15);
+            driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(20);
 
             return driver;
-        }
-
-        private int SetFailCount()
-        {
-            try
-            {
-                return Int32.Parse(_appSettings.Router.FailCount.ToString());
-            }
-            catch (Exception)
-            {
-                return 3;
-            }
         }
 
         public void CloseBrowser(IWebDriver driver)
