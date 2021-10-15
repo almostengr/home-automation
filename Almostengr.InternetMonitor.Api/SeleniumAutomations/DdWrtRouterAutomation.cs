@@ -66,5 +66,33 @@ namespace Almostengr.InternetMonitor.Api.SeleniumAutomations
 
             return _appSettings.Router.Host;
         }
+
+        public bool AreWifiDevicesConnected()
+        {
+            _driver.Navigate().GoToUrl(RouterUrl);
+
+            string wirelessTableString = _driver.FindElement(By.Id("wireless_table")).Text;
+            
+            _logger.LogInformation("List of connected clients");
+            _logger.LogInformation(wirelessTableString);
+
+            int wirelessTableRows = wirelessTableString.ToLower().Split("xx:xx:xx").Length;
+
+            if (wirelessTableRows < _appSettings.Router.MinWirelessClientCount)
+            {
+                _logger.LogError(
+                    "Less than expected wireless clients are connected. Expected: {expected}, Actual: {actual}",
+                    new string[] {
+                        _appSettings.Router.MinWirelessClientCount.ToString(),
+                        wirelessTableRows.ToString() });
+
+                return false;
+            }
+            else
+            {
+                _logger.LogInformation("Wireless clients are connected. {number} devices found", wirelessTableRows);
+                return true;
+            }
+        }
     }
 }

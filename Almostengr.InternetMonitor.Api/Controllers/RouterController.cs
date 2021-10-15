@@ -24,5 +24,11 @@ namespace Almostengr.InternetMonitor.Api.Controllers
             return Ok();
         }
 
+        [HttpGet]
+        public async Task<IActionResult> WifiDevices()
+        {
+            _ddWrtRouterAutomation.AreWifiDevicesConnected();
+            return Ok();
+        }
     }
 }

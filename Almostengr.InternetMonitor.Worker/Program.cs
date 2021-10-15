@@ -16,6 +16,10 @@ namespace Almostengr.InternetMonitor.Worker
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
+                .UseSystemd()
+                .UseContentRoot(
+                    System.IO.Path.GetDirectoryName(
+                        System.Reflection.Assembly.GetExecutingAssembly().Location))
                 .ConfigureServices((hostContext, services) =>
                 {
                     services.AddHostedService<Worker>();
