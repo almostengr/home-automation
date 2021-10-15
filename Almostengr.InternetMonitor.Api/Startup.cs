@@ -1,15 +1,10 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using Almostengr.InternetMonitor.Api.Models;
+using Almostengr.InternetMonitor.Api.SeleniumAutomations;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 
 namespace Almostengr.InternetMonitor.Api
@@ -26,12 +21,16 @@ namespace Almostengr.InternetMonitor.Api
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-
             services.AddControllers();
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "Almostengr.InternetMonitor.Api", Version = "v1" });
             });
+
+            AppSettings appSettings = Configuration.GetSection(nameof(appSettings)).Get<AppSettings>();
+            services.AddSingleton(appSettings);
+
+            services.AddSingleton<IDdWrtRouterAutomation, DdWrtRouterAutomation>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
