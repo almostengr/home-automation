@@ -6,7 +6,7 @@ using Microsoft.Extensions.Logging;
 namespace Almostengr.InternetMonitor.Api.Controllers
 {
     [ApiController]
-    [Route("api/v1/[controller]")]
+    [Route("api/[controller]")]
     public class RouterController : ControllerBase
     {
         private readonly ILogger<RouterController> _logger;
@@ -20,7 +20,6 @@ namespace Almostengr.InternetMonitor.Api.Controllers
         [HttpPost("rebootrouter")]
         public async Task<IActionResult> RebootRouter()
         {
-            // await _ddWrtRouterAutomation.RebootRouterAsync(null).ConfigureAwait(false);
             await Task.Run(() => _ddWrtRouterAutomation.RebootRouterAsync(null)).ConfigureAwait(false);
             return Ok();
         }
@@ -28,7 +27,6 @@ namespace Almostengr.InternetMonitor.Api.Controllers
         [HttpGet("wifidevices")]
         public async Task<IActionResult> WifiDevices()
         {
-            // await _ddWrtRouterAutomation.AreWifiDevicesConnectedAsync().ConfigureAwait(false);
             await Task.Run(() => _ddWrtRouterAutomation.AreWifiDevicesConnectedAsync().ConfigureAwait(false));
             return Ok();
         }
