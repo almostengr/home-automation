@@ -6,7 +6,7 @@ Documentation=https://github.com/almostengr/internetmonitor
 [Service]
 Type=simple
 Restart=always
-ExecStart=/usr/lib/internetmonitor/Almostengr.InternetMonitor
+ExecStart=/home/iamadmin/internetmonitor/Almostengr.InternetMonitor.Api
 User=iamadmin
 
 [Install]
