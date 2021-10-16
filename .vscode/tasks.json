@@ -12,7 +12,10 @@
                 "/consoleloggerparameters:NoSummary"
             ],
             "problemMatcher": "$msCompile",
-            "group": "build"
+            "group": {
+                "isDefault": true,
+                "kind": "build"
+            }
         },
         {
             "label": "watch",
@@ -58,7 +61,9 @@
                 "-c",
                 "RELEASE",
                 "-r",
-                "ubuntu.20.04-x64"
+                "ubuntu.20.04-x64",
+                "--self-contained",
+                "true"
             ],
             "dependsOn": ["Clean release folder"],
             "problemMatcher": "$msCompile"
@@ -71,8 +76,8 @@
                 "-pr",
                 "chromedriver",
                 "internetmonitor.service",
-                "${workspaceRoot}/bin/RELEASE/net5.0/ubuntu.20.04-x64/*",
-                "iamadmin@media://usr/lib/internetmonitor",
+                "${workspaceRoot}/Almostengr.InternetMonitor.Api/bin/Release/net5.0/publish/*",
+                "iamadmin@media://home/iamadmin/internetmonitor",
             ],
             "dependsOn": ["Publish release"],
             "problemMatcher": "$msCompile"
