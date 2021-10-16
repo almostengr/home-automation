@@ -1,5 +1,6 @@
 using System;
 using System.Threading.Tasks;
+using Almostengr.InternetMonitor.Api.DataTransfer;
 using Almostengr.InternetMonitor.Api.Models;
 using Microsoft.Extensions.Logging;
 using OpenQA.Selenium;
@@ -123,5 +124,30 @@ namespace Almostengr.InternetMonitor.Api.SeleniumAutomations
             CloseBrowser(webDriver);
         } // end function AreWifiDevicesConnectedAsync
 
+        public SensorState GetUpTime()
+        {
+            IWebDriver webDriver = null;
+            string uptimeString = string.Empty;
+
+            try
+            {
+                webDriver = StartBrowser();
+
+                RouterUrl = SetRouterUrl();
+                webDriver.Navigate().GoToUrl(RouterUrl);
+
+                uptimeString = webDriver.FindElement(By.Id("uptime")).Text;
+
+                uptimeString = uptimeString.Substring(0, uptimeString.IndexOf(","));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Unable to get router uptime");
+            }
+
+            CloseBrowser(webDriver);
+
+            return new SensorState(uptimeString);
+        }
     }
 }

@@ -1,4 +1,5 @@
 using System.Threading.Tasks;
+using Almostengr.InternetMonitor.Api.DataTransfer;
 using OpenQA.Selenium;
 
 namespace Almostengr.InternetMonitor.Api.SeleniumAutomations
@@ -7,5 +8,6 @@ namespace Almostengr.InternetMonitor.Api.SeleniumAutomations
     {
         Task RebootRouterAsync(IWebDriver webDriver);
         Task AreWifiDevicesConnectedAsync();
+        SensorState GetUpTime();
     }
 }

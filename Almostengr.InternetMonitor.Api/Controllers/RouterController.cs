@@ -32,5 +32,12 @@ namespace Almostengr.InternetMonitor.Api.Controllers
             await Task.Run(() => _ddWrtRouterAutomation.AreWifiDevicesConnectedAsync().ConfigureAwait(false));
             return Ok();
         }
+
+        [HttpGet("uptime")]
+        public IActionResult Uptime()
+        {
+            var response = _ddWrtRouterAutomation.GetUpTime();
+            return Ok(response);
+        }
     }
 }
