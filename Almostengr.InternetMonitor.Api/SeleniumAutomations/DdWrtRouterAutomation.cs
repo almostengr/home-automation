@@ -9,8 +9,7 @@ namespace Almostengr.InternetMonitor.Api.SeleniumAutomations
     public class DdWrtRouterAutomation : BaseAutomation, IDdWrtRouterAutomation
     {
         private readonly ILogger<DdWrtRouterAutomation> _logger;
-        private IWebDriver _driver;
-        private const int routerRebootSeconds = 60;
+        private const int routerRebootSeconds = 120;
         private AppSettings _appSettings;
 
         public DdWrtRouterAutomation(ILogger<DdWrtRouterAutomation> logger, AppSettings appSettings) : base(logger, appSettings)
@@ -19,34 +18,50 @@ namespace Almostengr.InternetMonitor.Api.SeleniumAutomations
             _appSettings = appSettings;
         }
 
-        public async Task RebootRouterAsync()
+        public async Task RebootRouterAsync(IWebDriver webDriver = null)
         {
             _logger.LogInformation("Rebooting router");
 
-            _driver = StartBrowser();
-            _driver.Navigate().GoToUrl(RouterUrl);
-            _driver.FindElement(By.LinkText("Administration")).Click();
+            try
+            {
+                if (webDriver == null)
+                {
+                    webDriver = StartBrowser();
+                }
 
+                RouterUrl = SetRouterUrl();
+
+                webDriver.Navigate().GoToUrl(RouterUrl);
+                webDriver.FindElement(By.LinkText("Administration")).Click();
+
+                webDriver.FindElement(By.Name("reboot_button")).Click();
 #if RELEASE
-                driver.FindElement(By.Name("reboot_button")).Click();
+                webDriver.FindElement(By.Name("reboot_button")).Click();
 #endif
 
-            if (_driver.FindElement(By.TagName("body")).Text.Contains("Unit is rebooting now. Please wait a moment..."))
-            {
-                _logger.LogInformation("Router was rebooted");
-                _logger.LogInformation("Waiting {seconds} seconds for reboot to complete", routerRebootSeconds);
+                if (webDriver.FindElement(By.TagName("body")).Text.Contains("Unit is rebooting now. Please wait a moment..."))
+                {
+                    _logger.LogInformation("Router was rebooted");
+                    _logger.LogInformation("Waiting {seconds} seconds for reboot to complete", routerRebootSeconds);
 
-                await Task.Delay(TimeSpan.FromSeconds(routerRebootSeconds));
+                    await Task.Delay(TimeSpan.FromSeconds(routerRebootSeconds));
 
-                _driver.Navigate().GoToUrl(RouterUrl);
+                    webDriver.Navigate().GoToUrl(RouterUrl);
 
-                _logger.LogInformation("Router is back online and can be reached");
+                    _logger.LogInformation("Router is back online and can be reached");
+                }
+                else
+                {
+                    _logger.LogError("Unable to reboot router");
+                }
             }
-            else
+            catch (Exception ex)
             {
-                _logger.LogError("Unable to reboot router");
+                _logger.LogError(ex, "Unable to reboot router");
             }
-        }
+
+            CloseBrowser(webDriver);
+        } // end function RebootRouterAsync
 
         private string SetRouterUrl()
         {
@@ -67,32 +82,46 @@ namespace Almostengr.InternetMonitor.Api.SeleniumAutomations
             return _appSettings.Router.Host;
         }
 
-        public bool AreWifiDevicesConnected()
+        public async Task AreWifiDevicesConnectedAsync()
         {
-            _driver.Navigate().GoToUrl(RouterUrl);
+            IWebDriver webDriver = null;
 
-            string wirelessTableString = _driver.FindElement(By.Id("wireless_table")).Text;
-            
-            _logger.LogInformation("List of connected clients");
-            _logger.LogInformation(wirelessTableString);
-
-            int wirelessTableRows = wirelessTableString.ToLower().Split("xx:xx:xx").Length;
-
-            if (wirelessTableRows < _appSettings.Router.MinWirelessClientCount)
+            try
             {
-                _logger.LogError(
-                    "Less than expected wireless clients are connected. Expected: {expected}, Actual: {actual}",
-                    new string[] {
+                webDriver = StartBrowser();
+
+                RouterUrl = SetRouterUrl();
+                webDriver.Navigate().GoToUrl(RouterUrl);
+
+                string wirelessTableString = webDriver.FindElement(By.Id("wireless_table")).Text;
+
+                _logger.LogInformation("List of connected clients");
+                _logger.LogInformation(wirelessTableString);
+
+                int wirelessTableRows = wirelessTableString.ToLower().Split("xx:xx:xx").Length;
+
+                if (wirelessTableRows < _appSettings.Router.MinWirelessClientCount)
+                {
+                    _logger.LogError(
+                        "Less than expected wireless clients are connected. Expected: {expected}, Actual: {actual}",
+                        new string[] {
                         _appSettings.Router.MinWirelessClientCount.ToString(),
                         wirelessTableRows.ToString() });
 
-                return false;
+                    await RebootRouterAsync(webDriver);
+                }
+                else
+                {
+                    _logger.LogInformation("Wireless clients are connected. {number} devices found", wirelessTableRows);
+                }
             }
-            else
+            catch (Exception ex)
             {
-                _logger.LogInformation("Wireless clients are connected. {number} devices found", wirelessTableRows);
-                return true;
+                _logger.LogError(ex, "Unable to check Wifi Devices");
             }
-        }
+
+            CloseBrowser(webDriver);
+        } // end function AreWifiDevicesConnectedAsync
+
     }
 }

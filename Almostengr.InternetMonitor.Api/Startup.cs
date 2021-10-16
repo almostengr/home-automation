@@ -27,7 +27,7 @@ namespace Almostengr.InternetMonitor.Api
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "Almostengr.InternetMonitor.Api", Version = "v1" });
             });
 
-            AppSettings appSettings = Configuration.GetSection(nameof(appSettings)).Get<AppSettings>();
+            AppSettings appSettings = Configuration.GetSection(nameof(AppSettings)).Get<AppSettings>();
             services.AddSingleton(appSettings);
 
             services.AddSingleton<IDdWrtRouterAutomation, DdWrtRouterAutomation>();

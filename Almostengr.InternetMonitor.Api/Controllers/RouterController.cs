@@ -17,17 +17,19 @@ namespace Almostengr.InternetMonitor.Api.Controllers
             _ddWrtRouterAutomation = ddWrtRouterAutomation;
         }
 
-        [HttpPost]
+        [HttpPost("rebootrouter")]
         public async Task<IActionResult> RebootRouter()
         {
-            await _ddWrtRouterAutomation.RebootRouterAsync().ConfigureAwait(false);
+            // await _ddWrtRouterAutomation.RebootRouterAsync(null).ConfigureAwait(false);
+            await Task.Run(() => _ddWrtRouterAutomation.RebootRouterAsync(null)).ConfigureAwait(false);
             return Ok();
         }
 
-        [HttpGet]
+        [HttpGet("wifidevices")]
         public async Task<IActionResult> WifiDevices()
         {
-            _ddWrtRouterAutomation.AreWifiDevicesConnected();
+            // await _ddWrtRouterAutomation.AreWifiDevicesConnectedAsync().ConfigureAwait(false);
+            await Task.Run(() => _ddWrtRouterAutomation.AreWifiDevicesConnectedAsync().ConfigureAwait(false));
             return Ok();
         }
     }

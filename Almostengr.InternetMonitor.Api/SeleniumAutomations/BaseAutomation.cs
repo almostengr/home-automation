@@ -16,7 +16,7 @@ namespace Almostengr.InternetMonitor.Api.SeleniumAutomations
     {
         private readonly ILogger<BaseAutomation> _logger;
         private readonly AppSettings _appSettings;
-        internal readonly string RouterUrl = string.Empty;
+        internal string RouterUrl = "http://router/";
         private readonly HttpClient _httpClientHA;
 
         public BaseAutomation(ILogger<BaseAutomation> logger, AppSettings appSettings){
@@ -37,7 +37,7 @@ namespace Almostengr.InternetMonitor.Api.SeleniumAutomations
             _logger.LogInformation("Starting the browser");
 
             IWebDriver driver = new ChromeDriver(options);
-            driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(20);
+            driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(30);
 
             return driver;
         }
