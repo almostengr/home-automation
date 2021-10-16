@@ -7,7 +7,7 @@
             "type": "process",
             "args": [
                 "build",
-                "${workspaceFolder}/Almostengr.InternetMonitor.csproj",
+                "${workspaceFolder}",
                 "/property:GenerateFullPaths=true",
                 "/consoleloggerparameters:NoSummary"
             ],
@@ -71,7 +71,7 @@
                 "-pr",
                 "chromedriver",
                 "internetmonitor.service",
-                "${workspaceRoot}/bin/RELEASE/netcoreapp3.1/ubuntu.20.04-x64/publish/*",
+                "${workspaceRoot}/bin/RELEASE/net5.0/ubuntu.20.04-x64/*",
                 "iamadmin@media://usr/lib/internetmonitor",
             ],
             "dependsOn": ["Publish release"],
