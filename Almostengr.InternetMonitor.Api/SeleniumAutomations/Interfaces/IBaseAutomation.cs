@@ -1,6 +1,6 @@
 using OpenQA.Selenium;
 
-namespace Almostengr.InternetMonitor.Api.SeleniumAutomations
+namespace Almostengr.InternetMonitor.Api.SeleniumAutomations.Interfaces
 {
     public interface IBaseAutomation
     {

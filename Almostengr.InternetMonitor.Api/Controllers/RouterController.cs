@@ -1,5 +1,5 @@
 using System.Threading.Tasks;
-using Almostengr.InternetMonitor.Api.SeleniumAutomations;
+using Almostengr.InternetMonitor.Api.SeleniumAutomations.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 

@@ -1,6 +1,7 @@
 using System;
 using System.Threading.Tasks;
 using Almostengr.InternetMonitor.Api.DataTransfer;
+using Almostengr.InternetMonitor.Api.SeleniumAutomations.Interfaces;
 using Almostengr.InternetMonitor.Api.Models;
 using Microsoft.Extensions.Logging;
 using OpenQA.Selenium;
@@ -64,24 +65,6 @@ namespace Almostengr.InternetMonitor.Api.SeleniumAutomations
             CloseBrowser(webDriver);
         } // end function RebootRouterAsync
 
-        private string SetRouterUrl()
-        {
-            _logger.LogInformation("Converting router URL");
-
-            if (string.IsNullOrEmpty(_appSettings.Router.Username) == false &&
-                string.IsNullOrEmpty(_appSettings.Router.Password) == false)
-            {
-                string protocol = _appSettings.Router.Host.Substring(0, _appSettings.Router.Host.IndexOf("://"));
-                string cleanedUrl = _appSettings.Router.Host.Replace("https://", "").Replace("http://", "");
-
-                return protocol + "://" +
-                    _appSettings.Router.Username + ":" +
-                    _appSettings.Router.Password + "@" +
-                    cleanedUrl;
-            }
-
-            return _appSettings.Router.Host;
-        }
 
         public async Task AreWifiDevicesConnectedAsync()
         {
