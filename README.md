@@ -1,8 +1,13 @@
-# Internet Monitor
+# Home Automation Microservices
+
+This project originaly was for internet monitor. It has expanded to be a microservices platform 
+that integrates with Home Assistant for home automation.
+
+## Internet Monitor
 
 Reboots the DD-WRT router when there are no WiFi clients connected to it.
 
-## Problem
+### Problem
 
 My router would occasionally disconnect any of the wireless clients that were connected to it. Since
 I have wired and wireless devices connected, some of the time I would not know that the wifi had
@@ -22,3 +27,15 @@ way to restart the process would be to reboot the router.
 
 For more information about this project and help documentation, visit 
 [https://thealmostengineer.com/internetmonitor](https://thealmostengineer.com/internetmonitor).
+
+## HD Home Run 
+
+### Problem
+
+HD HomeRun would receive updates via the web and display a notification on the UI of the device. Only problem 
+is that I rarely access the web UI of the devices.
+
+### Solution 
+
+Create a Selenium automation that is triggered by an API call from the home automation or other system. This 
+will perform the task such as installing pending updates or checking the status of the tuners.
