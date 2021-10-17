@@ -1,10 +1,12 @@
+using System.Threading.Tasks;
+
 namespace Almostengr.InternetMonitor.Api.SeleniumAutomations.Interfaces
 {
     public interface IHdHomeRunAutomation : IBaseAutomation
     {
         string SystemStatus();
-        bool IsUpdatePending(bool performUpdate = false);
-        bool PerformUpdate();
+        Task<bool> IsUpdatePendingAsync(bool performUpdate = false);
+        Task<bool> PerformUpdateAsync();
         string TunerStatus();
     }
 }

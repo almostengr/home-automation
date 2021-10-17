@@ -3,10 +3,10 @@ using Almostengr.InternetMonitor.Api.Models;
 using Microsoft.Extensions.Logging;
 using OpenQA.Selenium;
 using Almostengr.InternetMonitor.Api.SeleniumAutomations.Interfaces;
+using System.Threading.Tasks;
 
 namespace Almostengr.InternetMonitor.Api.SeleniumAutomations
 {
-
     public class HdHomeRunAutomation : BaseAutomation, IHdHomeRunAutomation
     {
         public readonly ILogger<HdHomeRunAutomation> _logger;
@@ -17,7 +17,7 @@ namespace Almostengr.InternetMonitor.Api.SeleniumAutomations
             _logger = logger;
         }
 
-        public bool IsUpdatePending(bool performUpdate = false)
+        public async Task<bool> IsUpdatePendingAsync(bool performUpdate = false)
         {
             IWebDriver webDriver = null;
             bool taskSuccessful = false;
@@ -33,6 +33,7 @@ namespace Almostengr.InternetMonitor.Api.SeleniumAutomations
                 if (performUpdate)
                 {
                     updateButton.Click();
+                    await Task.Delay(TimeSpan.FromSeconds(45));
                 }
 
                 taskSuccessful = true;
@@ -87,8 +88,8 @@ namespace Almostengr.InternetMonitor.Api.SeleniumAutomations
             return systemStatusString;
         }
 
-        public bool PerformUpdate(){
-            return IsUpdatePending(true);
+        public async Task<bool> PerformUpdateAsync(){
+            return await IsUpdatePendingAsync(true);
         }
 
         public string TunerStatus()

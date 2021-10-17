@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Almostengr.InternetMonitor.Api.DataTransfer;
 using Almostengr.InternetMonitor.Api.SeleniumAutomations.Interfaces;
 using Microsoft.AspNetCore.Mvc;
@@ -19,16 +20,16 @@ namespace Almostengr.InternetMonitor.Api.Controllers
         }
 
         [HttpGet("update")]
-        public IActionResult PendingUpdate()
+        public async Task<IActionResult> PendingUpdate()
         {
-            var response = _hdHomeRunAutomation.IsUpdatePending();
+            var response = await _hdHomeRunAutomation.IsUpdatePendingAsync();
             return Ok(new SensorState(response.ToString()));
         }
 
         [HttpPost("update")]
-        public IActionResult PerformUpdate()
+        public async Task<IActionResult> PerformUpdate()
         {
-            _hdHomeRunAutomation.PerformUpdate();
+            await _hdHomeRunAutomation.PerformUpdateAsync();
             return Ok();
         }
 
