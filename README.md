@@ -1,7 +1,9 @@
 # Home Automation Microservices
 
 This project originaly was for internet monitor. It has expanded to be a microservices platform 
-that integrates with Home Assistant for home automation.
+that integrates with Home Assistant for home automation. Several IOT devices have web interfaces, such as 
+routers, but do not have APIs. Thus this API was created so that an API could be called by the home 
+automation system, to perform tasks that via the device's HTML interface.
 
 ## Internet Monitor
 
