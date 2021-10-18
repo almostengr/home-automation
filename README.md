@@ -16,7 +16,7 @@ I have wired and wireless devices connected, some of the time I would not know t
 stopped working until my phone or laptop wouldn't connect or I noticed that a automation did not
 trigger when it should have.
 
-## Solution
+### Solution
 
 After updating to the latest DD-WRT firmware, the problem persisted.  Given that I work building
 automations to improve business processes, I decided that I would build and automation that would
@@ -25,19 +25,23 @@ If there are no connected wireless clients, then there is a great chance that th
 authenticates clients has crashed.  As a result, the process would need to be restarted and the easiest
 way to restart the process would be to reboot the router.
 
-## Project Information
+### Project Information
 
 For more information about this project and help documentation, visit 
 [https://thealmostengineer.com/internetmonitor](https://thealmostengineer.com/internetmonitor).
 
-## HD Home Run 
+## HD Home Run
+
+Can install updates and check the status of the HD HomeRun.
 
 ### Problem
 
-HD HomeRun would receive updates via the web and display a notification on the UI of the device. Only problem 
-is that I rarely access the web UI of the devices.
+HD HomeRun receives updates via the web and displays a notification on the web UI of the device. Unless 
+you visit the web UI of the device, you will not know that an update is ready to be installed.
 
 ### Solution 
 
-Create a Selenium automation that is triggered by an API call from the home automation or other system. This 
-will perform the task such as installing pending updates or checking the status of the tuners.
+Create a Selenium Webdriver automation that is triggered by an API call from Home Assistant to see 
+if there updates available. When updates are available, Home Assistant will show a notification about 
+the updates. This also has functionality to get the system and tuner status of the HD HomeRun and 
+display it in Home Assistant.
