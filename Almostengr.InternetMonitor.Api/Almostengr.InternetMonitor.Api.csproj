@@ -1,4 +1,5 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">  <PropertyGroup>
+<Project Sdk="Microsoft.NET.Sdk.Web">  
+  <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
     <Company>Robinson Handy and Technology Services LLC</Company>
     <Copyright>Copyright © $([System.DateTime]::UtcNow.ToString(yyyy)) Robinson Handy and Technology Services</Copyright>
@@ -6,7 +7,7 @@
     <Authors>Kenny Robinson</Authors>
     <AssemblyName>Almostengr.InternetMonitor.Api</AssemblyName>
     <RootNamespace>Almostengr.InternetMonitor</RootNamespace>
-    <Version>$([System.DateTime]::UtcNow.ToString(yyyy.MM))</Version>
+    <Version>$([System.DateTime]::UtcNow.ToString(yyyy.MM.dd))</Version>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Swashbuckle.AspNetCore" Version="5.6.3"/>
