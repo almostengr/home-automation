@@ -1,5 +1,5 @@
 using System.Threading.Tasks;
-using Almostengr.InternetMonitor.Api.SeleniumAutomations.Interfaces;
+using Almostengr.InternetMonitor.Api.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
@@ -10,9 +10,9 @@ namespace Almostengr.InternetMonitor.Api.Controllers
     public class RouterController : ControllerBase
     {
         private readonly ILogger<RouterController> _logger;
-        private readonly IDdWrtRouterAutomation _ddWrtRouterAutomation;
+        private readonly IDdWrtRouterService _ddWrtRouterAutomation;
 
-        public RouterController(ILogger<RouterController> logger, IDdWrtRouterAutomation ddWrtRouterAutomation){
+        public RouterController(ILogger<RouterController> logger, IDdWrtRouterService ddWrtRouterAutomation){
             _logger = logger;
             _ddWrtRouterAutomation = ddWrtRouterAutomation;
         }

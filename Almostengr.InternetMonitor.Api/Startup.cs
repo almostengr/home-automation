@@ -1,6 +1,4 @@
-using Almostengr.InternetMonitor.Api.Models;
-using Almostengr.InternetMonitor.Api.SeleniumAutomations;
-using Almostengr.InternetMonitor.Api.SeleniumAutomations.Interfaces;
+using Almostengr.InternetMonitor.Api.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -31,8 +29,8 @@ namespace Almostengr.InternetMonitor.Api
             AppSettings appSettings = Configuration.GetSection(nameof(AppSettings)).Get<AppSettings>();
             services.AddSingleton(appSettings);
 
-            services.AddSingleton<IDdWrtRouterAutomation, DdWrtRouterAutomation>();
-            services.AddSingleton<IHdHomeRunAutomation, HdHomeRunAutomation>();
+            services.AddSingleton<IDdWrtRouterService, DdWrtRouterService>();
+            services.AddSingleton<IHdHomeRunService, HdHomeRunService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

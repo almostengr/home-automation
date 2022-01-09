@@ -1,18 +1,16 @@
 using System;
-using Almostengr.InternetMonitor.Api.Models;
 using Microsoft.Extensions.Logging;
 using OpenQA.Selenium;
-using Almostengr.InternetMonitor.Api.SeleniumAutomations.Interfaces;
 using System.Threading.Tasks;
 
-namespace Almostengr.InternetMonitor.Api.SeleniumAutomations
+namespace Almostengr.InternetMonitor.Api.Services
 {
-    public class HdHomeRunAutomation : BaseAutomation, IHdHomeRunAutomation
+    public class HdHomeRunService : SeleniumService, IHdHomeRunService
     {
-        public readonly ILogger<HdHomeRunAutomation> _logger;
+        public readonly ILogger<HdHomeRunService> _logger;
         private const string _hdHomeRunUrl = "http://hdhomerun/";
 
-        public HdHomeRunAutomation(ILogger<HdHomeRunAutomation> logger, AppSettings appSettings) : base(logger, appSettings)
+        public HdHomeRunService(ILogger<HdHomeRunService> logger, AppSettings appSettings) : base(logger, appSettings)
         {
             _logger = logger;
         }

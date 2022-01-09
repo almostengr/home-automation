@@ -1,4 +1,4 @@
-namespace Almostengr.InternetMonitor.Api.Models
+namespace Almostengr.InternetMonitor.Api
 {
     public class AppSettings
     {

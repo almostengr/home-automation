@@ -1,8 +1,8 @@
 using System.Threading.Tasks;
 
-namespace Almostengr.InternetMonitor.Api.SeleniumAutomations.Interfaces
+namespace Almostengr.InternetMonitor.Api.Services
 {
-    public interface IHdHomeRunAutomation : IBaseAutomation
+    public interface IHdHomeRunService : ISeleniumService
     {
         string SystemStatus();
         Task<bool> IsUpdatePendingAsync(bool performUpdate = false);

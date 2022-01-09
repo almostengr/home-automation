@@ -1,6 +1,6 @@
 using System.Threading.Tasks;
 using Almostengr.InternetMonitor.Api.DataTransfer;
-using Almostengr.InternetMonitor.Api.SeleniumAutomations.Interfaces;
+using Almostengr.InternetMonitor.Api.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
@@ -11,9 +11,9 @@ namespace Almostengr.InternetMonitor.Api.Controllers
     public class HdHomeRunController : ControllerBase
     {
         private readonly ILogger<HdHomeRunController> _logger;
-        private readonly IHdHomeRunAutomation _hdHomeRunAutomation;
+        private readonly IHdHomeRunService _hdHomeRunAutomation;
 
-        public HdHomeRunController(ILogger<HdHomeRunController> logger, IHdHomeRunAutomation hdHomeRunAutomation)
+        public HdHomeRunController(ILogger<HdHomeRunController> logger, IHdHomeRunService hdHomeRunAutomation)
         {
             _logger = logger;
             _hdHomeRunAutomation = hdHomeRunAutomation;
