@@ -8,6 +8,6 @@ namespace Almostengr.InternetMonitor.Api.Services
     {
         Task RebootRouterAsync(IWebDriver webDriver);
         Task AreWifiDevicesConnectedAsync();
-        SensorState GetUpTime();
+        SensorStateDto GetUpTime();
     }
 }

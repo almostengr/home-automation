@@ -105,7 +105,7 @@ namespace Almostengr.InternetMonitor.Api.Services
             CloseBrowser(webDriver);
         } // end function AreWifiDevicesConnectedAsync
 
-        public SensorState GetUpTime()
+        public SensorStateDto GetUpTime()
         {
             IWebDriver webDriver = null;
             string uptimeString = string.Empty;
@@ -128,7 +128,7 @@ namespace Almostengr.InternetMonitor.Api.Services
 
             CloseBrowser(webDriver);
 
-            return new SensorState(uptimeString);
+            return new SensorStateDto(uptimeString);
         }
     }
 }
