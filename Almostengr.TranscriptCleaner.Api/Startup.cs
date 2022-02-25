@@ -1,3 +1,4 @@
+using Almostengr.TranscriptCleaner.Api.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -20,6 +21,8 @@ namespace Almostengr.TranscriptCleaner.Api
         public void ConfigureServices(IServiceCollection services)
         {
 
+            services.AddSingleton<ITranscriptService, TranscriptService>();
+            
             services.AddControllers();
             services.AddSwaggerGen(c =>
             {

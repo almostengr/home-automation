@@ -1,37 +1,22 @@
 using Almostengr.TranscriptCleaner.Api.Common;
 using Almostengr.TranscriptCleaner.Api.DataTransferObjects;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
-namespace Almostengr.TranscriptCleaner.Api.Controllers
+namespace Almostengr.TranscriptCleaner.Api.Services
 {
-    [ApiController]
-    [Route("api/v1/[controller]")]
-    public class TranscriptController : ControllerBase
+    public class TranscriptService : ITranscriptService
     {
-        private readonly ILogger<TranscriptController> _logger;
+        private readonly ILogger<TranscriptService> _logger;
 
-        public TranscriptController(ILogger<TranscriptController> logger)
+        public TranscriptService(ILogger<TranscriptService> logger)
         {
             _logger = logger;
         }
 
-        [HttpPost("clean")]
-        public ActionResult<TranscriptOutputDto> CleanTranscript(TranscriptInputDto inputDto)
+        public TranscriptOutputDto CleanTranscript(TranscriptInputDto inputDto)
         {
-            if (string.IsNullOrEmpty(inputDto.Input))
-            {
-                _logger.LogError("Input is empty");
-                return BadRequest("Input is required");
-            }
 
             string[] inputLines = inputDto.Input.Split('\n');
-
-            if (inputLines[0].StartsWith("1") == false || inputLines[1].StartsWith("00:") == false)
-            {
-                _logger.LogError("Input is not in the correct format");
-                return BadRequest("Input is not in the correct format");
-            }
 
             int counter = 0;
             string videoString = string.Empty;
@@ -65,7 +50,7 @@ namespace Almostengr.TranscriptCleaner.Api.Controllers
             outputDto.BlogWords = blogString.Split(' ').Length;
 
             _logger.LogInformation("Transcript processed successfully");
-            return Ok(outputDto);
+            return outputDto;
         }
 
         private string CleanBlogString(string blogText)
