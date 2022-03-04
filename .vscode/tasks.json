@@ -24,7 +24,7 @@
             "args": [
                 "watch",
                 "run",
-                "${workspaceFolder}/Almostengr.InternetMonitor.csproj",
+                "${workspaceFolder}/Almostengr.InternetMonitor.Api.csproj",
                 "/property:GenerateFullPaths=true",
                 "/consoleloggerparameters:NoSummary"
             ],

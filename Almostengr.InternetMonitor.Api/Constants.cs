@@ -7,4 +7,18 @@ namespace Almostengr.InternetMonitor.Api.Constants
         public const string TurnOffSwitch = "switch/turn_off";
         public const string ToggleSwitch = "switch/toggle";
     }
+
+
+    public class Transcript
+    {
+        public const string InputDirectory = "/home/almostengineer/Downloads/transcripts";
+        public const string OutputDirectory = "/home/almostengineer/Downloads/transcripts/output";
+    }
+
+    public class Formatting
+    {
+        public const string NewLine = "\n";
+        public const string Space = " ";
+    }
+    
 }

@@ -1,3 +1,4 @@
+using Almostengr.InternetMonitor.Api.Clients;
 using Almostengr.InternetMonitor.Api.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -29,8 +30,16 @@ namespace Almostengr.InternetMonitor.Api
             AppSettings appSettings = Configuration.GetSection(nameof(AppSettings)).Get<AppSettings>();
             services.AddSingleton(appSettings);
 
+            // clients
+
+            services.AddSingleton<IHomeAssistantClient, HomeAssistantClient>();
+
+            // services
+
             services.AddSingleton<IDdWrtRouterService, DdWrtRouterService>();
             services.AddSingleton<IHdHomeRunService, HdHomeRunService>();
+            services.AddSingleton<IHomeAssistantService, HomeAssistantService>();
+            services.AddSingleton<ITranscriptService, TranscriptService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
