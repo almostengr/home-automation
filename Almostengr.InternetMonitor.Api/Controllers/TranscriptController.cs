@@ -21,8 +21,9 @@ namespace Almostengr.InternetMonitor.Api.Controllers
         {
             if (_transcriptService.IsValidTranscript(inputDto) == false)
             {
-                _logger.LogError("Input is not in SRT format");
-                return BadRequest("Input is not in SRT format");
+                string invalidMsg = "Input is not in a valid format";
+                _logger.LogError(invalidMsg);
+                return BadRequest(invalidMsg);
             }
 
             return _transcriptService.CleanTranscript(inputDto);

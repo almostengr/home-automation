@@ -1,5 +1,6 @@
 using Almostengr.InternetMonitor.Api.Clients;
 using Almostengr.InternetMonitor.Api.Services;
+using Almostengr.InternetMonitor.Api.Workers;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -39,7 +40,12 @@ namespace Almostengr.InternetMonitor.Api
             services.AddSingleton<IDdWrtRouterService, DdWrtRouterService>();
             services.AddSingleton<IHdHomeRunService, HdHomeRunService>();
             services.AddSingleton<IHomeAssistantService, HomeAssistantService>();
-            services.AddSingleton<ITranscriptService, TranscriptService>();
+            services.AddSingleton<ITextFileService, TextFileService>();
+            services.AddSingleton<ITranscriptService, SrtTranscriptService>();
+
+            // workers
+
+            services.AddHostedService<TranscriptWorker>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

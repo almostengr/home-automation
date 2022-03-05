@@ -1,22 +1,24 @@
+using System.IO;
 using Almostengr.InternetMonitor.Api.Constants;
 using Almostengr.InternetMonitor.Api.DataTransferObjects;
 using Microsoft.Extensions.Logging;
 
 namespace Almostengr.InternetMonitor.Api.Services
 {
-    public class TranscriptService : ITranscriptService
+    public class SrtTranscriptService : ITranscriptService
     {
-        private readonly ILogger<TranscriptService> _logger;
+        private readonly ILogger<SrtTranscriptService> _logger;
+        private readonly ITextFileService _textFileService;
 
-        public TranscriptService(ILogger<TranscriptService> logger)
+        public SrtTranscriptService(ILogger<SrtTranscriptService> logger, ITextFileService textFileService) 
         {
             _logger = logger;
+            _textFileService = textFileService;
         }
 
         public TranscriptOutputDto CleanTranscript(TranscriptInputDto inputDto)
         {
             string[] inputLines = inputDto.Input.Split('\n');
-
             int counter = 0;
             string videoString = string.Empty;
             string blogString = string.Empty;
@@ -25,34 +27,53 @@ namespace Almostengr.InternetMonitor.Api.Services
             {
                 counter = counter >= 4 ? 1 : counter + 1;
 
-                string cleanedLine = line.ToUpper()
+                string cleanedLine = line
+                    .ToUpper()
                     .Replace("UM", string.Empty)
                     .Replace("UH", string.Empty)
                     .Replace("[MUSIC] YOU", "[MUSIC]")
                     .Replace("  ", " ")
-                    .Replace("RHTSERVICES.NET", "[RHTSERVICES.NET](/)")
-                    .Replace("INSTAGRAM", "<a href=\"https://www.instagram.com/rhtservicesllc/\">INSTAGRAM</a>")
-                    .Replace("FACEBOOK", "<a href=\"https://www.facebook.com/rhtservicesllc/\">FACEBOOK</a>")
+                    .Replace("ALL RIGHT", "ALRIGHT")
                     .Trim();
 
                 videoString += cleanedLine + Formatting.NewLine;
 
                 if (counter == 3)
                 {
-                    blogString += cleanedLine + Formatting.Space;
+                    blogString += cleanedLine + Formatting.NewLine;
                 }
             }
 
             blogString = RemoveDupesFromBlogString(blogString);
             blogString = CleanBlogString(blogString);
 
-            TranscriptOutputDto outputDto = new TranscriptOutputDto();
+            TranscriptOutputDto outputDto = new();
+            outputDto.VideoTitle = inputDto.VideoTitle;
             outputDto.VideoText = videoString;
             outputDto.BlogText = blogString;
             outputDto.BlogWords = blogString.Split(' ').Length;
 
             _logger.LogInformation("Transcript processed successfully");
+
+            _textFileService.SaveFileContents(
+                $"{Transcript.OutputDirectory}/{outputDto.VideoTitle}.srt",
+                outputDto.VideoText);
+
+            _textFileService.SaveFileContents(
+                $"{Transcript.OutputDirectory}/{outputDto.VideoTitle}.md",
+                outputDto.BlogText);
+
             return outputDto;
+        }
+
+        public string[] GetTranscriptList(string srt)
+        {
+            if (Directory.Exists(Transcript.InputDirectory) == false)
+            {
+                Directory.CreateDirectory(Transcript.InputDirectory);
+            }
+
+            return Directory.GetFiles(Transcript.InputDirectory, $"*{FileExtension.Srt}");
         }
 
         public bool IsValidTranscript(TranscriptInputDto inputDto)
@@ -69,8 +90,14 @@ namespace Almostengr.InternetMonitor.Api.Services
 
         private string CleanBlogString(string blogText)
         {
-            return blogText.Replace("[MUSIC]", string.Empty)
+            return blogText
                 .Replace("  ", " ")
+                .Replace("[MUSIC]", "(MUSIC)")
+                .Replace("AND SO ", string.Empty)
+                .Replace("FACEBOOK", "<a href=\"https://www.facebook.com/rhtservicesllc/\" target=\"_blank\">FACEBOOK</a>")
+                .Replace("INSTAGRAM", "<a href=\"https://www.instagram.com/rhtservicesllc/\" target=\"_blank\">INSTAGRAM</a>")
+                .Replace("RHTSERVICES.NET", "[RHTSERVICES.NET](/)")
+                .Replace("YOUTUBE", "<a href=\"https://www.youtube.com/c/RobinsonHandyandTechnologyServices?sub_confirmation=1\" target=\"_blank\">YOUTUBE</a>")
                 .Trim();
         }
 
@@ -90,5 +117,6 @@ namespace Almostengr.InternetMonitor.Api.Services
 
             return output;
         }
+        
     }
 }
