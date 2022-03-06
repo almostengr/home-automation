@@ -9,8 +9,9 @@ namespace Almostengr.InternetMonitor.Api.Services
     public class DdWrtRouterService : SeleniumService, IDdWrtRouterService
     {
         private readonly ILogger<DdWrtRouterService> _logger;
+        private readonly AppSettings _appSettings;
         private const int routerRebootSeconds = 120;
-        private AppSettings _appSettings;
+        private string RouterUrl = "http://router/";
 
         public DdWrtRouterService(ILogger<DdWrtRouterService> logger, AppSettings appSettings) : base(logger, appSettings)
         {

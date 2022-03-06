@@ -5,12 +5,12 @@ using Microsoft.Extensions.Logging;
 
 namespace Almostengr.InternetMonitor.Api.Services
 {
-    public class SrtTranscriptService : ITranscriptService
+    public class SrtTranscriptService : BaseService, ITranscriptService
     {
         private readonly ILogger<SrtTranscriptService> _logger;
         private readonly ITextFileService _textFileService;
 
-        public SrtTranscriptService(ILogger<SrtTranscriptService> logger, ITextFileService textFileService) 
+        public SrtTranscriptService(ILogger<SrtTranscriptService> logger, ITextFileService textFileService) : base(logger)
         {
             _logger = logger;
             _textFileService = textFileService;
@@ -48,7 +48,7 @@ namespace Almostengr.InternetMonitor.Api.Services
             blogString = CleanBlogString(blogString);
 
             TranscriptOutputDto outputDto = new();
-            outputDto.VideoTitle = inputDto.VideoTitle;
+            outputDto.VideoTitle = inputDto.VideoTitle.Replace(FileExtension.Srt, string.Empty);
             outputDto.VideoText = videoString;
             outputDto.BlogText = blogString;
             outputDto.BlogWords = blogString.Split(' ').Length;

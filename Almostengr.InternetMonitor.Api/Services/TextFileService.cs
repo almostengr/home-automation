@@ -4,11 +4,11 @@ using Microsoft.Extensions.Logging;
 
 namespace Almostengr.InternetMonitor.Api.Services
 {
-    public class TextFileService : ITextFileService
+    public class TextFileService : BaseService, ITextFileService
     {
         private readonly ILogger<TextFileService> _logger;
 
-        public TextFileService(ILogger<TextFileService> logger)
+        public TextFileService(ILogger<TextFileService> logger) : base(logger)
         {
             _logger = logger;
         }

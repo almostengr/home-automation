@@ -8,14 +8,14 @@ namespace Almostengr.InternetMonitor.Api.Services
     public class HomeAssistantService : BaseService, IHomeAssistantService
     {
         private readonly ILogger<HomeAssistantService> _logger;
-        private readonly AppSettings _appSettings;
-        private readonly IHomeAssistantClient _client;
-        public HomeAssistantService(ILogger<HomeAssistantService> logger, AppSettings appSettings,
-            IHomeAssistantClient client) : base(logger, appSettings)
+        private readonly IHomeAssistantClient _haClient;
+        internal string RouterUrl = "http://router/";
+
+        public HomeAssistantService(ILogger<HomeAssistantService> logger,
+            IHomeAssistantClient haClient) : base(logger)
         {
             _logger = logger;
-            _appSettings = appSettings;
-            _client = client;
+            _haClient = haClient;
         }
 
         public async Task<HaApiResponseDto> TurnOffLightAtBedTimeAsync()
