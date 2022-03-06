@@ -2,12 +2,12 @@ using System.Threading.Tasks;
 using Almostengr.InternetMonitor.Api.DataTransfer;
 using OpenQA.Selenium;
 
-namespace Almostengr.InternetMonitor.Api.SeleniumAutomations.Interfaces
+namespace Almostengr.InternetMonitor.Api.Services
 {
-    public interface IDdWrtRouterAutomation : IBaseAutomation
+    public interface IDdWrtRouterService : ISeleniumService
     {
         Task RebootRouterAsync(IWebDriver webDriver);
         Task AreWifiDevicesConnectedAsync();
-        SensorState GetUpTime();
+        SensorStateDto GetUpTime();
     }
 }

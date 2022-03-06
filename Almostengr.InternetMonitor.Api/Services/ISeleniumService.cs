@@ -1,8 +1,8 @@
 using OpenQA.Selenium;
 
-namespace Almostengr.InternetMonitor.Api.SeleniumAutomations.Interfaces
+namespace Almostengr.InternetMonitor.Api.Services
 {
-    public interface IBaseAutomation
+    public interface ISeleniumService  : IBaseService
     {
         IWebDriver StartBrowser();
         void CloseBrowser(IWebDriver driver);

@@ -1,8 +1,8 @@
 namespace Almostengr.InternetMonitor.Api.DataTransfer
 {
-    public class SensorState
+    public class SensorStateDto : BaseDto
     {
-        public SensorState(string state)
+        public SensorStateDto(string state)
         {
             State = state;
         }

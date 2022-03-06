@@ -1,19 +1,17 @@
 using System;
-using Almostengr.InternetMonitor.Api.Models;
-using Almostengr.InternetMonitor.Api.SeleniumAutomations.Interfaces;
 using Microsoft.Extensions.Logging;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
 
-namespace Almostengr.InternetMonitor.Api.SeleniumAutomations
+namespace Almostengr.InternetMonitor.Api.Services
 {
-    public abstract class BaseAutomation : IBaseAutomation
+    public abstract class SeleniumService : BaseService, ISeleniumService
     {
-        private readonly ILogger<BaseAutomation> _logger;
+        private readonly ILogger<SeleniumService> _logger;
         private readonly AppSettings _appSettings;
-        internal string RouterUrl = "http://router/";
 
-        public BaseAutomation(ILogger<BaseAutomation> logger, AppSettings appSettings){
+        public SeleniumService(ILogger<SeleniumService> logger, AppSettings appSettings) : base(logger)
+        {
             _logger = logger;
             _appSettings = appSettings;
         }
@@ -45,7 +43,8 @@ namespace Almostengr.InternetMonitor.Api.SeleniumAutomations
             }
         }
 
-        public string SetRouterUrl()
+
+        internal string SetUrlWithCredentials()
         {
             _logger.LogInformation("Converting router URL");
 
@@ -63,7 +62,6 @@ namespace Almostengr.InternetMonitor.Api.SeleniumAutomations
 
             return _appSettings.Router.Host;
         }
-
-        
     }
+
 }

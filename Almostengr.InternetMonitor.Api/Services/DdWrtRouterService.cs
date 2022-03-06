@@ -1,20 +1,19 @@
 using System;
 using System.Threading.Tasks;
 using Almostengr.InternetMonitor.Api.DataTransfer;
-using Almostengr.InternetMonitor.Api.SeleniumAutomations.Interfaces;
-using Almostengr.InternetMonitor.Api.Models;
 using Microsoft.Extensions.Logging;
 using OpenQA.Selenium;
 
-namespace Almostengr.InternetMonitor.Api.SeleniumAutomations
+namespace Almostengr.InternetMonitor.Api.Services
 {
-    public class DdWrtRouterAutomation : BaseAutomation, IDdWrtRouterAutomation
+    public class DdWrtRouterService : SeleniumService, IDdWrtRouterService
     {
-        private readonly ILogger<DdWrtRouterAutomation> _logger;
+        private readonly ILogger<DdWrtRouterService> _logger;
+        private readonly AppSettings _appSettings;
         private const int routerRebootSeconds = 120;
-        private AppSettings _appSettings;
+        private string RouterUrl = "http://router/";
 
-        public DdWrtRouterAutomation(ILogger<DdWrtRouterAutomation> logger, AppSettings appSettings) : base(logger, appSettings)
+        public DdWrtRouterService(ILogger<DdWrtRouterService> logger, AppSettings appSettings) : base(logger, appSettings)
         {
             _logger = logger;
             _appSettings = appSettings;
@@ -31,7 +30,7 @@ namespace Almostengr.InternetMonitor.Api.SeleniumAutomations
                     webDriver = StartBrowser();
                 }
 
-                RouterUrl = SetRouterUrl();
+                RouterUrl = SetUrlWithCredentials();
 
                 webDriver.Navigate().GoToUrl(RouterUrl);
                 webDriver.FindElement(By.LinkText("Administration")).Click();
@@ -74,7 +73,7 @@ namespace Almostengr.InternetMonitor.Api.SeleniumAutomations
             {
                 webDriver = StartBrowser();
 
-                RouterUrl = SetRouterUrl();
+                RouterUrl = SetUrlWithCredentials();
                 webDriver.Navigate().GoToUrl(RouterUrl);
 
                 string wirelessTableString = webDriver.FindElement(By.Id("wireless_table")).Text;
@@ -107,7 +106,7 @@ namespace Almostengr.InternetMonitor.Api.SeleniumAutomations
             CloseBrowser(webDriver);
         } // end function AreWifiDevicesConnectedAsync
 
-        public SensorState GetUpTime()
+        public SensorStateDto GetUpTime()
         {
             IWebDriver webDriver = null;
             string uptimeString = string.Empty;
@@ -116,7 +115,7 @@ namespace Almostengr.InternetMonitor.Api.SeleniumAutomations
             {
                 webDriver = StartBrowser();
 
-                RouterUrl = SetRouterUrl();
+                RouterUrl = SetUrlWithCredentials();
                 webDriver.Navigate().GoToUrl(RouterUrl);
 
                 uptimeString = webDriver.FindElement(By.Id("uptime")).Text;
@@ -130,7 +129,7 @@ namespace Almostengr.InternetMonitor.Api.SeleniumAutomations
 
             CloseBrowser(webDriver);
 
-            return new SensorState(uptimeString);
+            return new SensorStateDto(uptimeString);
         }
     }
 }
