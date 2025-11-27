@@ -1,0 +1,99 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "build",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "build",
+                "${workspaceFolder}",
+                "/property:GenerateFullPaths=true",
+                "/consoleloggerparameters:NoSummary"
+            ],
+            "problemMatcher": "$msCompile",
+            "group": {
+                "isDefault": true,
+                "kind": "build"
+            }
+        },
+        {
+            "label": "watch",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "watch",
+                "run",
+                "${workspaceFolder}/Almostengr.HomeAutomation.csproj",
+                "/property:GenerateFullPaths=true",
+                "/consoleloggerparameters:NoSummary"
+            ],
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "Clean debug folder",
+            "command" : "dotnet",
+            "type": "shell",
+            "args": [
+                "clean",
+                "-c",
+                "DEBUG"
+            ],
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "Clean release folder",
+            "command" : "dotnet",
+            "type": "shell",
+            "args": [
+                "clean",
+                "-c",
+                "RELEASE"
+            ],
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "Publish release",
+            "command" : "dotnet",
+            "type": "shell",
+            "args": [
+                "publish",
+                "-c",
+                "RELEASE",
+                "-r",
+                "linux-arm",
+                "--self-contained",
+                "true"
+            ],
+            "dependsOn": ["Clean release folder"],
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "Publish release to local",
+            "command" : "scp",
+            "type": "shell",
+            "args": [
+                "-pr",
+                "chromedriver",
+                "internetmonitor.service",
+                "${workspaceRoot}/bin/Release/net9.0/publish/*",
+                "pi@dashboard://home/pi/homeautomation",
+            ],
+            "dependsOn": ["Publish release"],
+            "problemMatcher": "$msCompile"
+        },
+        // {
+        //     "label": "Tag Release",
+        //     "command" : "git",
+        //     "type": "shell",
+        //     "args": [
+        //         "tag",
+        //         "-a",
+        //         "\"v$(date +%Y.%m.%d)\"",
+        //         "-m",
+        //         "\"version $(date +%Y.%m.%d)\""
+        //     ],
+        //     "dependsOn": ["Publish release"],
+        // }
+    ]
+}

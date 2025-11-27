@@ -447,3 +447,4 @@ testing.properties
 appsettings.*
 !appsettings.template.json
 Almostengr.InternetMonitor.Api/password
+app.db
